@@ -1,46 +1,35 @@
-cmake_minimum_required(VERSION 3.11)
-project(Aurora)
+cmake_minimum_required(VERSION 3.4)
+project(aurora)
 
-# gtest
-# Download and unpack googletest at configure time
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-  RESULT_VARIABLE result
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/googletest-download )
-if(result)
-  message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
+# library & binary destinations
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+# third party code download/installation location
+set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
-# Add googletest directly to our build. This defines
-# the gtest and gtest_main targets.
-add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
-                 ${CMAKE_BINARY_DIR}/googletest-build
-                 EXCLUDE_FROM_ALL)
+# googletest
+include(cmake/googletest.cmake)
+fetch_googletest(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/googletest)
 
-# The gtest/gtest_main targets carry header search path
-# dependencies automatically when using CMake 2.8.11 or
-# later. Otherwise we have to add them here ourselves.
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-  include_directories("${gtest_SOURCE_DIR}/include")
-endif()
+# libcurl
+include(cmake/curl.cmake)
+fetch_curl(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/curl)
 
-
+# Aurora c++ library
+#add_library(aurora STATIC ${PROJECT_SOURCE_DIR}/src)
 
 # test executable
 add_executable(mytest
   tests/mytest.cpp)
 target_include_directories(mytest PRIVATE
   src)
-target_link_libraries(mytest gtest_main)
+message(STATUS "CURL_LIBRARY : ${CURL_LIBRARY}")
+target_link_libraries(mytest gtest_main libcurl) #curl
 # add mytest target to Makefile
-add_test(NAME example_test COMMAND mytest)
+add_test(NAME mytest COMMAND mytest)

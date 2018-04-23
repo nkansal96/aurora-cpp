@@ -1,4 +1,7 @@
 #include "gtest/gtest.h"
+#include "curl/curl.h"
+
+#include <iostream>
 
 namespace {
 
@@ -33,6 +36,8 @@ class FooTest : public ::testing::Test {
 };
 
   TEST(FooTest, OneEqualsOne) {
+    char *v = curl_version();
+    std::cout << "curl version: " << v << std::endl;
     EXPECT_EQ(1, 1);
   }
 

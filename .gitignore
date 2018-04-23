@@ -1,3 +1,10 @@
+# build
+
+/lib/
+/bin/
+/docs/
+/third_party/
+
 # Cmake
 
 CMakeCache.txt
