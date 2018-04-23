@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "curl/curl.h"
+#include "aurora/Backend.h"
 
 #include <iostream>
 
@@ -35,10 +35,12 @@ class FooTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-  TEST(FooTest, OneEqualsOne) {
-    char *v = curl_version();
-    std::cout << "curl version: " << v << std::endl;
-    EXPECT_EQ(1, 1);
+  TEST(FooTest, AuroraTest) {
+    aurora::Backend b;
+    b.setBaseURL("test");
+    aurora::Credentials c;
+    c.appID = "appid";
+    ASSERT_EQ(c.appID, "appid");
   }
 
 }  // namespace

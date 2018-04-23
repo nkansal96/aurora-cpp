@@ -22,14 +22,17 @@ fetch_curl(
   ${THIRD_PARTY_DIR}/curl)
 
 # Aurora c++ library
-#add_library(aurora STATIC ${PROJECT_SOURCE_DIR}/src)
+add_library(aurora STATIC
+  src/Backend.cpp)
+target_include_directories(aurora PRIVATE
+  src/include/aurora)
+target_link_libraries(aurora libcurl)
 
 # test executable
 add_executable(mytest
   tests/mytest.cpp)
 target_include_directories(mytest PRIVATE
-  src)
-message(STATUS "CURL_LIBRARY : ${CURL_LIBRARY}")
-target_link_libraries(mytest gtest_main libcurl) #curl
+   src/include)
+target_link_libraries(mytest gtest_main aurora)
 # add mytest target to Makefile
 add_test(NAME mytest COMMAND mytest)
