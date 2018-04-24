@@ -2,7 +2,6 @@
 
 /lib/
 /bin/
-/docs/
 /third_party/
 
 # Cmake
@@ -104,7 +103,12 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-
 # googletest
 /googletest-*/
 *.pc
+
+# Doxygen
+/docs/
+/CmakeDoxyfile.in
+/CmakeDoxygenDefaults.cmake
+/Doxyfile

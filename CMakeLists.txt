@@ -9,30 +9,66 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # third party code download/installation location
 set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 
+# ----------------------------------------------------------------------------
 # googletest
+# ----------------------------------------------------------------------------
+# TODO: make optional, shouldn't need just to build aurora
 include(cmake/googletest.cmake)
 fetch_googletest(
   ${PROJECT_SOURCE_DIR}/cmake
   ${THIRD_PARTY_DIR}/googletest)
 
+# ----------------------------------------------------------------------------
 # libcurl
+# ----------------------------------------------------------------------------
 include(cmake/curl.cmake)
 fetch_curl(
   ${PROJECT_SOURCE_DIR}/cmake
   ${THIRD_PARTY_DIR}/curl)
 
-# Aurora c++ library
+# ----------------------------------------------------------------------------
+# Aurora c++ library target
+# ----------------------------------------------------------------------------
 add_library(aurora STATIC
   src/Backend.cpp)
+# look in ./include/ for aurora headers
 target_include_directories(aurora PRIVATE
   include)
+# link dependencies
 target_link_libraries(aurora libcurl)
 
-# test executable
+# ----------------------------------------------------------------------------
+# backend test target
+# ----------------------------------------------------------------------------
 add_executable(test_backend
   tests/test_backend.cpp)
+# include aurora headers in test target
 target_include_directories(test_backend PRIVATE
-   include)
+  include)
+# link googletest and aurora to test
 target_link_libraries(test_backend gtest_main aurora)
-# add mytest target to Makefile
+# add test_backend target to Makefile
 add_test(NAME test_backend COMMAND test_backend)
+
+# ----------------------------------------------------------------------------
+# Doxygen (optional)
+# ----------------------------------------------------------------------------
+# check if Doxygen is installed
+find_package(Doxygen)
+if (DOXYGEN_FOUND)
+  # set input and output files
+  set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
+  set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+
+  # request to configure the file
+  configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+
+  # 'make doc' target
+  add_custom_target(doc
+    COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating API documentation with Doxygen"
+    VERBATIM )
+else (DOXYGEN_FOUND)
+  message("Doxygen need to be installed to generate the doxygen documentation")
+endif (DOXYGEN_FOUND)

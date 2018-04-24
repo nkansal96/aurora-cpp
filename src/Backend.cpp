@@ -1,5 +1,5 @@
 #include "aurora/Backend.h"
-
+#include "curl/curl.h"
 #include <iostream>
 
 aurora::Backend::Backend() {

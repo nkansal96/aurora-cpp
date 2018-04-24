@@ -9,23 +9,27 @@
 namespace aurora {
   const std::string baseURL = "http://api.auroraapi.com"; // TODO: https
 
+  /// MultipartFile is an in-memory representation of a file to upload.
   typedef struct {
+    /// Name is the form field name
     std::string name;
+    /// Filename is the file name to upload the file as
     std::string filename;
+    /// Data is the file data
     std::vector<char> data;
   } MultipartFile;
 
-  // Credentials for the API request.
+  /// Credentials for the API request.
   typedef struct {
-    // AppID is the appliacation ID (sent for 'X-Application-ID' header)
+    /// AppID is the appliacation ID (sent for 'X-Application-ID' header)
     std::string appID;
-    // AppToken is the application token (sent for 'X-Application-Token' header)
+    /// AppToken is the application token (sent for 'X-Application-Token' header)
     std::string appToken;
-    // DeviceID is the device ID (sent for 'X-Device-ID' header)
+    /// DeviceID is the device ID (sent for 'X-Device-ID' header)
     std::string deviceID;
   } Credentials;
-
-  typedef struct {
+ 
+ typedef struct {
     std::string method;
     std::string path;
     std::unordered_map<std::string, std::vector<std::string> > headers;
