@@ -27,6 +27,9 @@ enable_testing()
 # libcurl
 # ----------------------------------------------------------------------------
 include(cmake/curl.cmake)
+fetch_curl(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/curl)
 
 # ----------------------------------------------------------------------------
 # json

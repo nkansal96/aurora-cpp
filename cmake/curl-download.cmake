@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+
+project(curl-download NONE)
+
+include(ExternalProject)
+
+
+set(CURL_OPTIONS
+  -DCURL_STATICLIB=ON
+  -DBUILD_CURL_EXE=OFF
+  -DHTTP_ONLY=ON
+  -DBUILD_CURL_TESTS=OFF
+  -DBUILD_SHARED_LIBS=OFF
+  -DCURL_ZLIB=OFF
+  )
+
+if(APPLE)
+  set(CURL_OPTIONS ${CURL_OPTIONS}  -DCMAKE_USE_DARWINSSL=ON -DCMAKE_USE_OPENSSL=OFF  -DCURL_CA_PATH_SET=OFF)
+endif(APPLE)
+
+ExternalProject_Add(
+  curl
+  SOURCE_DIR "@CURL_DOWNLOAD_ROOT@/curl-src"
+  BINARY_DIR "@CURL_DOWNLOAD_ROOT@/curl-build"
+  GIT_REPOSITORY https://github.com/curl/curl.git
+  GIT_TAG curl-7_59_0
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND ""
+  INSTALL_COMMAND ""
+  TEST_COMMAND ""
+  CMAKE_ARGS "${CURL_OPTIONS}"
+  )
+
