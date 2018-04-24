@@ -18,7 +18,7 @@ set(CURL_OPTIONS
   )
 
 if(APPLE)
-  set(CURL_OPTIONS ${CURL_OPTIONS} -DCMAKE_USE_DARWINSSL=ON -DCMAKE_USE_OPENSSL=OFF  -DCURL_CA_PATH_SET=OFF)
+  set(CURL_OPTIONS ${CURL_OPTIONS}  -DCMAKE_USE_DARWINSSL=ON -DCMAKE_USE_OPENSSL=OFF  -DCURL_CA_PATH_SET=OFF)
 endif(APPLE)
 
 ExternalProject_Add(
@@ -28,7 +28,7 @@ ExternalProject_Add(
   BINARY_DIR ${CURL_DOWNLOAD_ROOT}/curl-build
   GIT_REPOSITORY https://github.com/curl/curl.git
   GIT_TAG curl-7_59_0
-  CMAKE_ARGS 
+  CMAKE_ARGS ${CURL_OPTIONS}
   )
 
 # add libcurl target

@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.4)
 project(aurora)
 
+# compile with C++11
+set(CMAKE_CXX_STANDARD 11)
+
 # library & binary destinations
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -26,24 +29,28 @@ enable_testing()
 include(cmake/curl.cmake)
 
 # ----------------------------------------------------------------------------
+# json
+# ----------------------------------------------------------------------------
+include(cmake/json.cmake)
+fetch_json(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/json)
+
+# ----------------------------------------------------------------------------
 # Aurora c++ library target
 # ----------------------------------------------------------------------------
 add_library(aurora STATIC
   src/Backend.cpp)
 # look in ./include/ for aurora headers
-target_include_directories(aurora PRIVATE
-  include)
+include_directories(include)
 # link dependencies
-target_link_libraries(aurora INTERFACE libcurl)
+target_link_libraries(aurora INTERFACE libcurl nlohmann_json)
 
 # ----------------------------------------------------------------------------
 # backend test target
 # ----------------------------------------------------------------------------
 add_executable(test_backend
   tests/test_backend.cpp)
-# include aurora headers in test target
-target_include_directories(test_backend PRIVATE
-  include)
 # link googletest and aurora to test
 target_link_libraries(test_backend gtest_main aurora)
 # add test_backend target to tests
