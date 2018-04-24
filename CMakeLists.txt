@@ -17,14 +17,13 @@ include(cmake/googletest.cmake)
 fetch_googletest(
   ${PROJECT_SOURCE_DIR}/cmake
   ${THIRD_PARTY_DIR}/googletest)
+# adds 'make test' target that runs all tests
+enable_testing()
 
 # ----------------------------------------------------------------------------
 # libcurl
 # ----------------------------------------------------------------------------
 include(cmake/curl.cmake)
-fetch_curl(
-  ${PROJECT_SOURCE_DIR}/cmake
-  ${THIRD_PARTY_DIR}/curl)
 
 # ----------------------------------------------------------------------------
 # Aurora c++ library target
@@ -47,7 +46,7 @@ target_include_directories(test_backend PRIVATE
   include)
 # link googletest and aurora to test
 target_link_libraries(test_backend gtest_main aurora)
-# add test_backend target to Makefile
+# add test_backend target to tests
 add_test(NAME test_backend COMMAND test_backend)
 
 # ----------------------------------------------------------------------------
