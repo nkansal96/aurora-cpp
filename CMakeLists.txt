@@ -25,14 +25,14 @@ fetch_curl(
 add_library(aurora STATIC
   src/Backend.cpp)
 target_include_directories(aurora PRIVATE
-  src/include/aurora)
+  include)
 target_link_libraries(aurora libcurl)
 
 # test executable
-add_executable(mytest
-  tests/mytest.cpp)
-target_include_directories(mytest PRIVATE
-   src/include)
-target_link_libraries(mytest gtest_main aurora)
+add_executable(test_backend
+  tests/test_backend.cpp)
+target_include_directories(test_backend PRIVATE
+   include)
+target_link_libraries(test_backend gtest_main aurora)
 # add mytest target to Makefile
-add_test(NAME mytest COMMAND mytest)
+add_test(NAME test_backend COMMAND test_backend)
