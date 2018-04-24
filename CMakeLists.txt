@@ -20,8 +20,6 @@ include(cmake/googletest.cmake)
 fetch_googletest(
   ${PROJECT_SOURCE_DIR}/cmake
   ${THIRD_PARTY_DIR}/googletest)
-# adds 'make test' target that runs all tests
-enable_testing()
 
 # ----------------------------------------------------------------------------
 # libcurl
@@ -32,7 +30,7 @@ fetch_curl(
   ${THIRD_PARTY_DIR}/curl)
 
 # ----------------------------------------------------------------------------
-# json
+# json library
 # ----------------------------------------------------------------------------
 include(cmake/json.cmake)
 fetch_json(
@@ -42,25 +40,15 @@ fetch_json(
 # ----------------------------------------------------------------------------
 # Aurora c++ library target
 # ----------------------------------------------------------------------------
-add_library(aurora STATIC
-  src/Backend.cpp)
-# look in ./include/ for aurora headers
-include_directories(include)
-# link dependencies
-target_link_libraries(aurora INTERFACE libcurl nlohmann_json)
+add_subdirectory(src)
 
 # ----------------------------------------------------------------------------
-# backend test target
+# Tests
 # ----------------------------------------------------------------------------
-add_executable(test_backend
-  tests/test_backend.cpp)
-# link googletest and aurora to test
-target_link_libraries(test_backend gtest_main aurora)
-# add test_backend target to tests
-add_test(NAME test_backend COMMAND test_backend)
+add_subdirectory(tests)
 
 # ----------------------------------------------------------------------------
-# Doxygen (optional)
+# Doxygen
 # ----------------------------------------------------------------------------
 # check if Doxygen is installed
 find_package(Doxygen)
