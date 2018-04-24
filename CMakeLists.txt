@@ -34,7 +34,7 @@ add_library(aurora STATIC
 target_include_directories(aurora PRIVATE
   include)
 # link dependencies
-target_link_libraries(aurora libcurl)
+target_link_libraries(aurora INTERFACE libcurl)
 
 # ----------------------------------------------------------------------------
 # backend test target

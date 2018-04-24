@@ -7,7 +7,7 @@
 #include <curl/curl.h>
 
 namespace aurora {
-  const std::string baseURL = "http://api.auroraapi.com"; // TODO: https
+  const std::string baseURL = "https://api.auroraapi.com";
 
   /// MultipartFile is an in-memory representation of a file to upload.
   typedef struct {
@@ -45,10 +45,11 @@ namespace aurora {
     Backend();
     ~Backend();
 
+    void call();
+
     void setBaseURL(std::string url);
   private:
     std::string m_baseURL;
-    CURL *m_curl;
   };
 }
 

@@ -4,11 +4,30 @@
 
 aurora::Backend::Backend() {
   m_baseURL = baseURL;
-  m_curl = curl_easy_init();
+
+  curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
 aurora::Backend::~Backend() {
-  curl_easy_cleanup(m_curl);
+  curl_global_cleanup();
+}
+
+void aurora::Backend::call() {
+  CURL *curl = curl_easy_init();
+  if (!curl) {
+    std::cout << "curl init failed" << std::endl;
+  }
+
+  curl_easy_setopt(curl, CURLOPT_URL, m_baseURL.c_str());
+
+  CURLcode res = curl_easy_perform(curl);
+
+  if (res != CURLE_OK) {
+    std::cout << "curl req failed: " << curl_easy_strerror(res) << std::endl;
+  }
+
+  std::cout << "curl finished" << std::endl;
+  curl_easy_cleanup(curl);
 }
 
 void aurora::Backend::setBaseURL(std::string url) {
