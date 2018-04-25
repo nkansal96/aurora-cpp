@@ -37,10 +37,7 @@ class FooTest : public ::testing::Test {
 
   TEST(FooTest, AuroraTest) {
     aurora::Backend b;
-    b.setBaseURL("test");
-    aurora::Credentials c;
-    c.appID = "appid";
-    ASSERT_EQ(c.appID, "appid");
+    b.setBaseURL("https://google.com");
   }
 
 }  // namespace

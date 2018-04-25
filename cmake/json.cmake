@@ -29,5 +29,5 @@ macro(fetch_json _download_module_path _download_root)
     )
 
   # include all nlohmann_json interface directories
-  include_directories($<TARGET_PROPERTY:nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>)
+  include_directories(${_download_root}/json-src/single_include/)
 endmacro()

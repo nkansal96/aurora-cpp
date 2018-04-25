@@ -1,6 +1,9 @@
 #include "aurora/Backend.h"
 #include "curl/curl.h"
+#include "nlohmann/json.hpp"
 #include <iostream>
+
+using json = nlohmann::json;
 
 aurora::Backend::Backend() {
   m_baseURL = baseURL;
@@ -12,7 +15,7 @@ aurora::Backend::~Backend() {
   curl_global_cleanup();
 }
 
-void aurora::Backend::call() {
+void aurora::Backend::call(CallParams &params) {
   CURL *curl = curl_easy_init();
   if (!curl) {
     std::cout << "curl init failed" << std::endl;
