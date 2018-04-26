@@ -22,12 +22,6 @@ macro(fetch_json _download_module_path _download_root)
     ${_download_root}
     )
 
-  # adds the target 'nlohmann_json'
-  add_subdirectory(
-    ${_download_root}/json-src
-    ${_download_root}/json-build
-    )
-
   # include all nlohmann_json interface directories
   include_directories(${_download_root}/json-src/single_include/)
 endmacro()

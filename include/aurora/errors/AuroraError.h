@@ -4,30 +4,32 @@
 #include <string>
 #include <exception>
 
-namespace aurora {
+namespace aurora
+{
 
 /// used for errors that occur in the Aurora client library
-class AuroraError : public std::exception {
-public:
-AuroraError(std::string code, std::string message, std::string info);
+class AuroraError : public std::exception
+{
+  public:
+    AuroraError(std::string code, std::string message, std::string info);
 
-std::string getCode() const;
-std::string getMessage() const;
-std::string getInfo() const;
+    std::string getCode() const;
+    std::string getMessage() const;
+    std::string getInfo() const;
 
-const char* what () const throw();
+    const char *what() const throw();
 
-private:
-/// Code is the specific error code (for debugging purposes)
-std::string m_code;
+  private:
+    /// Code is the specific error code (for debugging purposes)
+    std::string m_code;
 
-/// Message is a descriptive message of the error, why it occurred, how to resolve, etc.
-std::string m_message;
+    /// Message is a descriptive message of the error, why it occurred, how to resolve, etc.
+    std::string m_message;
 
-/// Info is an optional field describing in detail the error for debugging purposes.
-std::string m_info;
+    /// Info is an optional field describing in detail the error for debugging purposes.
+    std::string m_info;
 };
 
-}
+} // namespace aurora
 
 #endif // AURORAERROR_H

@@ -6,4 +6,4 @@ target_include_directories(aurora PUBLIC
   ${CMAKE_SOURCE_DIR}/include
   )
 # add dependencies to interface
-target_link_libraries(aurora INTERFACE libcurl nlohmann_json)
+target_link_libraries(aurora INTERFACE libcurl)

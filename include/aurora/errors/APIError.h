@@ -1,5 +1,7 @@
 #include <string>
 
+namespace aurora {
+
 /// APIError is the error that is returned from API calls.
 struct APIError {
   /// Id is the request ID for which this error occurred.
@@ -17,3 +19,5 @@ struct APIError {
   /// Info is an optional field describing in detail the error for debugging purposes.
   std::string info;
 };
+
+} // namespace aurora
