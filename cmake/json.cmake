@@ -22,9 +22,8 @@ macro(fetch_json _download_module_path _download_root)
     ${_download_root}
     )
 
-  # include all nlohmann_json interface directories
-  include_directories(${_download_root}/json-src/single_include/)
-  #add_library(json INTERFACE)
-  #target_include_directories(json INTERFACE
-  #  ${_download_root}/json-src/single_include/)
+  # add all nlohmann_json header search paths to interface
+  add_library(json INTERFACE)
+  target_include_directories(json INTERFACE ${_download_root}/json-src/single_include)
+
 endmacro()

@@ -4,8 +4,8 @@ add_library(aurora STATIC
   APIError.cpp)
 # look in ./include/ for aurora headers & add to interface
 target_include_directories(aurora PUBLIC
-  ${CMAKE_SOURCE_DIR}/include
-  )
+  ${CMAKE_SOURCE_DIR}/include)
 # add dependencies to interface
-target_link_libraries(aurora INTERFACE
-  libcurl)
+target_link_libraries(aurora PUBLIC
+  libcurl
+  json)
