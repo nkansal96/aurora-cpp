@@ -5,7 +5,7 @@ project(json-download NONE)
 include(ExternalProject)
 
 ExternalProject_Add(
-  json
+  nlohmann_json
   PREFIX @JSON_DOWNLOAD_ROOT@
   SOURCE_DIR "@JSON_DOWNLOAD_ROOT@/json-src"
   BINARY_DIR "@JSON_DOWNLOAD_ROOT@/json-build"

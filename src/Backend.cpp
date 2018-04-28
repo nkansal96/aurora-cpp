@@ -3,19 +3,21 @@
 #include "nlohmann/json.hpp"
 #include <iostream>
 
+namespace aurora {
+
 using json = nlohmann::json;
 
-aurora::Backend::Backend() {
+Backend::Backend() {
   m_baseURL = baseURL;
 
   curl_global_init(CURL_GLOBAL_DEFAULT);
 }
 
-aurora::Backend::~Backend() {
+Backend::~Backend() {
   curl_global_cleanup();
 }
 
-void aurora::Backend::call(CallParams &params) {
+void Backend::call(CallParams &params) {
   CURL *curl = curl_easy_init();
   if (!curl) {
     std::cout << "curl init failed" << std::endl;
@@ -33,6 +35,8 @@ void aurora::Backend::call(CallParams &params) {
   curl_easy_cleanup(curl);
 }
 
-void aurora::Backend::setBaseURL(std::string url) {
+void Backend::setBaseURL(std::string url) {
   m_baseURL = url;
 }
+
+} // namespace aurora

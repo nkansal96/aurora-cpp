@@ -1,23 +1,45 @@
+#ifndef APIERROR_H
+#define APIERROR_H
+
 #include <string>
+#include <exception>
 
 namespace aurora {
 
-/// APIError is the error that is returned from API calls.
-struct APIError {
-  /// Id is the request ID for which this error occurred.
-  std::string ID;
+class APIError : public std::exception {
+  public:
+    APIError(std::string ID, std::string status, std::string code, std::string type, std::string message, std::string info);
 
-  /// Status is the HTTP Status code for this error
-  std::string status;
+    /// Id is the request ID for which this error occurred.
+    std::string getID() const;
 
-  /// Type is the type (BadRequest, NotFound, etc) of error
-  std::string type;
+    /// Status is the HTTP Status code for this error
+    std::string getStatus() const;
 
-  /// Message is a descriptive message of the error, why it occurred, how to resolve, etc.
-  std::string message;
+    /// Code is the specific error code (for debugging purposes)
+    std::string getCode() const;
 
-  /// Info is an optional field describing in detail the error for debugging purposes.
-  std::string info;
+    /// Type is the type (BadRequest, NotFound, etc) of error
+    std::string getType() const;
+
+    /// Message is a descriptive message of the error, why it occurred, how to resolve, etc.
+    std::string getMessage() const;
+
+    /// Info is an optional field describing in detail the error for debugging purposes.
+    std::string getInfo() const;
+
+    /// returns a descriptive message of the error, why it occurred, how to resolve, etc.
+    virtual const char* what() const noexcept;
+
+  private:
+    std::string m_ID;
+    std::string m_status;
+    std::string m_code;
+    std::string m_type;
+    std::string m_message;
+    std::string m_info;
 };
 
 } // namespace aurora
+
+#endif // APIERROR_H

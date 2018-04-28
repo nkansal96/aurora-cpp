@@ -7,8 +7,8 @@
 #include <curl/curl.h>
 #include "aurora/errors/APIError.h"
 
-namespace aurora
-{
+namespace aurora {
+
 const std::string baseURL = "https://api.auroraapi.com";
 
 /// MultipartFile is an in-memory representation of a file to upload.
