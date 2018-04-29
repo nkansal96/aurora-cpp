@@ -3,15 +3,20 @@
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <aurora/errors/AuroraError.h>
+#include <vector>
+#include <iterator>
+#include <algorithm>
 
 namespace aurora {
 
 using json = nlohmann::json;
 
 ///libcurl callback when data is received
-size_t writeFunction(void *ptr, size_t size, size_t nmemb, std::string* data) {
+size_t writeFunction(void *ptr, size_t size, size_t nmemb, Buffer *data) {
   // add bytes to data string buffer
-  data->append((char*) ptr, size * nmemb);
+  //data->append((char*) ptr, size * nmemb);
+  char *buffer = (char *) ptr;
+  std::copy(buffer, buffer + (size * nmemb), std::back_inserter(*data));
 
   // return number of bytes taken care of
   // if different than amount given, causes curl error
@@ -37,9 +42,9 @@ HTTPResponse Backend::call(const CallParams &params) {
   curl_easy_reset(m_curl);
 
   // HTTP response body
-  std::string responseString;
+  Buffer responseBody;
   // HTTP headers
-  std::string headerString;
+  Buffer responseHeader;
   // build full request URL
   std::string requestURL = buildRequestURL(params);
 
@@ -48,9 +53,9 @@ HTTPResponse Backend::call(const CallParams &params) {
   // set libcurl to call writeFunction when data is received
   curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, writeFunction);
   // write the response body
-  curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &responseString);
+  curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &responseBody);
   // write the response header
-  curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, &headerString);
+  curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, &responseHeader);
 
   // build headers
   // curl_slist MUST BE FREED after request
@@ -71,7 +76,7 @@ HTTPResponse Backend::call(const CallParams &params) {
   long responseCode;
   curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &responseCode);
 
-  return {responseString, headerString, responseCode};
+  return {responseBody, responseHeader, responseCode};
 }
 
 void Backend::setBaseURL(const std::string &url) {

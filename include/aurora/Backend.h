@@ -11,6 +11,8 @@ namespace aurora {
 
 const std::string baseURL = "https://api.auroraapi.com";
 
+using Buffer = std::vector<char>;
+
 /// MultipartFile is an in-memory representation of a file to upload.
 struct MultipartFile {
   /// Name is the form field name
@@ -52,13 +54,12 @@ struct CallParams {
 
 /// returned result of a successful call
 struct HTTPResponse {
-  std::string response;
-  std::string header;
+  Buffer response;
+  Buffer header;
   long code;
 };
 
-class Backend
-{
+class Backend {
 public:
   /**
    * @param url the base url string that all requests will use
