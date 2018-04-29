@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(aurora)
+project(aurora LANGUAGES C CXX)
 
 # compile with C++11
 set(CMAKE_CXX_STANDARD 11)
@@ -16,13 +16,11 @@ set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ----------------------------------------------------------------------------
-# googletest
+# options
 # ----------------------------------------------------------------------------
-# TODO: make optional, shouldn't need just to build aurora
-include(cmake/googletest.cmake)
-fetch_googletest(
-  ${PROJECT_SOURCE_DIR}/cmake
-  ${THIRD_PARTY_DIR}/googletest)
+
+option(DOWNLOAD_CPPCHECK "Download and build cppcheck from Github" ON)
+option(ENABLE_TESTS "Download & build googletest and run Aurora tests" ON)
 
 # ----------------------------------------------------------------------------
 # libcurl
@@ -46,11 +44,49 @@ fetch_json(
 add_subdirectory(src)
 
 # ----------------------------------------------------------------------------
+# cppcheck static code analyzer
+# ----------------------------------------------------------------------------
+if (DOWNLOAD_CPPCHECK)
+  set(CPPCHECK_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cppcheck)
+
+  include(cmake/cppcheck.cmake)
+  fetch_cppcheck(
+    ${PROJECT_SOURCE_DIR}/cmake
+    ${THIRD_PARTY_DIR}/cppcheck
+    )
+
+
+  add_custom_target(
+    cppcheck
+    COMMAND ${CPPCHECK_INSTALL_PREFIX}/bin/cppcheck${CMAKE_EXECUTABLE_SUFFIX}
+    --enable=warning,performance,portability,style
+    --std=c++11
+    --template=vs
+    --quiet
+    -I"${CMAKE_SOURCE_DIR}/include/"
+    include/
+    src/ -isrc/CMakeFiles
+    )
+endif()
+
+# ----------------------------------------------------------------------------
+# googletest
+# ----------------------------------------------------------------------------
+if (ENABLE_TESTS)
+  include(cmake/googletest.cmake)
+  fetch_googletest(
+    ${PROJECT_SOURCE_DIR}/cmake
+    ${THIRD_PARTY_DIR}/googletest)
+endif()
+
+# ----------------------------------------------------------------------------
 # Tests
 # ----------------------------------------------------------------------------
-# adds 'make test' target that runs all tests
-enable_testing()
-add_subdirectory(tests)
+if (ENABLE_TESTS)
+  # adds 'make test' target that runs all tests
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 
 # ----------------------------------------------------------------------------
 # Doxygen
