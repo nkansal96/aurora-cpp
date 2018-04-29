@@ -3,14 +3,13 @@
 
 namespace aurora {
 
-APIError::APIError(std::string ID, std::string status, std::string code, std::string type, std::string message, std::string info) {
-  m_ID = ID;
-  m_status = status;
-  m_code = code;
-  m_type = type;
-  m_message = message;
-  m_info = info;
-}
+APIError::APIError(const std::string &ID,
+                   const std::string &status,
+                   const std::string &code,
+                   const std::string &type,
+                   const std::string &message,
+                   const std::string &info)
+  : m_ID(ID), m_status(status), m_code(code), m_type(type), m_message(message), m_info(info) {}
 
 std::string APIError::getID() const {
   return m_ID;

@@ -9,3 +9,6 @@ Aurora uses Doxygen to generate documentation. To generate documentation, you mu
 
 ## Testing
 Aurora uses googletest to create and run tests. After building all tests with `make`, you can run all tests with `make test`.
+
+## Static Analysis Checking
+To prevent errors and improve performance, Aurora uses cppcheck to analyze all code for deficiencies. CPPCheck is automatically invoked on every build with `make`, and it can be explicityl invoked with `make cppcheck`. CMake handles downloading and building cppcheck during the configuration stage.

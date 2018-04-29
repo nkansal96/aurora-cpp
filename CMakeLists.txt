@@ -55,14 +55,15 @@ if (DOWNLOAD_CPPCHECK)
     ${THIRD_PARTY_DIR}/cppcheck
     )
 
-
+  # run cppcheck on `make all`
   add_custom_target(
-    cppcheck
+    cppcheck ALL
     COMMAND ${CPPCHECK_INSTALL_PREFIX}/bin/cppcheck${CMAKE_EXECUTABLE_SUFFIX}
     --enable=warning,performance,portability,style
     --std=c++11
     --template=vs
     --quiet
+    --verbose
     -I"${CMAKE_SOURCE_DIR}/include/"
     include/
     src/ -isrc/CMakeFiles

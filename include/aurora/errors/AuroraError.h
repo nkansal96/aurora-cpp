@@ -9,7 +9,7 @@ namespace aurora {
 /// used for errors that occur in the Aurora client library
 class AuroraError : public std::exception {
   public:
-    AuroraError(std::string code, std::string message, std::string info);
+    AuroraError(const std::string &code, const std::string &message, const std::string &info);
 
     /// Code is the specific error code (for debugging purposes)
     std::string getCode() const;
@@ -24,11 +24,11 @@ class AuroraError : public std::exception {
     virtual const char* what() const noexcept;
 
   private:
-    std::string m_code;
+    const std::string m_code;
 
-    std::string m_message;
+    const std::string m_message;
 
-    std::string m_info;
+    const std::string m_info;
 };
 
 } // namespace aurora

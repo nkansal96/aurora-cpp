@@ -8,7 +8,12 @@ namespace aurora {
 
 class APIError : public std::exception {
   public:
-    APIError(std::string ID, std::string status, std::string code, std::string type, std::string message, std::string info);
+  APIError(const std::string &ID,
+           const std::string &status,
+           const std::string &code,
+           const std::string &type,
+           const std::string &message,
+           const std::string &info);
 
     /// Id is the request ID for which this error occurred.
     std::string getID() const;
