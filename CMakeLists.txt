@@ -23,12 +23,13 @@ option(DOWNLOAD_CPPCHECK "Download and build cppcheck from Github" ON)
 option(ENABLE_TESTS "Download & build googletest and run Aurora tests" ON)
 
 # ----------------------------------------------------------------------------
-# libcurl
+# cpr (curl wrapper) library
 # ----------------------------------------------------------------------------
-include(cmake/curl.cmake)
-fetch_curl(
+include(cmake/cpr.cmake)
+fetch_cpr(
   ${PROJECT_SOURCE_DIR}/cmake
-  ${THIRD_PARTY_DIR}/curl)
+  ${THIRD_PARTY_DIR}/cpr)
+
 
 # ----------------------------------------------------------------------------
 # json library

@@ -39,10 +39,11 @@ TEST(BackendTest, DummyTest) {
   aurora::Backend b;
   aurora::CallParams cp;
   cp.query = {{"key1", {"value1", "value2"}}};
+  aurora::Credentials cred;
+  cred.appID = "test-app-id";
+  cp.credentials = cred;
   auto res = b.call(cp);
-  std::string body(res.response.begin(), res.response.end());
-  std::cout << "CODE: " << res.code << std::endl
-            << "BODY: " << body << std::endl;
+  std::cout << "CODE: " << res.statusCode << std::endl << "RESPONSE: " << res.response << std::endl;
 }
 
 }  // namespace

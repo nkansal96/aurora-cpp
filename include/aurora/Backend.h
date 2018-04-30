@@ -4,14 +4,11 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <aurora/HTTPClient.h>
-#include <aurora/errors/APIError.h>
+#include <cpr/cpr.h>
 
 namespace aurora {
 
 const std::string baseURL = "https://api.auroraapi.com";
-
-using Buffer = std::vector<char>;
 
 /// MultipartFile is an in-memory representation of a file to upload.
 struct MultipartFile {
@@ -54,9 +51,9 @@ struct CallParams {
 
 /// returned result of a successful call
 struct HTTPResponse {
-  Buffer response;
-  Buffer header;
-  long code;
+  std::string response;
+  std::unordered_map<std::string, std::string> header;
+  int statusCode;
 };
 
 class Backend {
@@ -65,36 +62,19 @@ public:
    * @param url the base url string that all requests will use
    */
   explicit Backend(const std::string &url = baseURL);
-  Backend(const std::string &url, HTTPClient *client);
   virtual ~Backend();
 
   /// execute an HTTP request
   virtual HTTPResponse call(CallParams &params);
 
+  // set base request url, will be suffixed by CallParams.path
   virtual void setBaseURL(const std::string &url);
 
 private:
   /// the base url string that all requests will use
   std::string m_baseURL;
 
-  /// wrapper around underlying network library
-  HTTPClient *m_client;
-
-  /// convert map of query params to a URL query string, for example "?key1=value1&key2=value2"
-  std::string buildQueryString(const std::unordered_map<std::string, std::vector<std::string>> &query);
-
-  /// builds the full request URL with base + path + query
-  std::string buildRequestURL(const CallParams &params);
-
-  /**
-   * configures curl user headers, authentication headers, and HTTP method
-   * @returns curl_slist* that MUST BE FREED with curl_slist_free_all(curl_slist*) after request completes
-   */
-  struct curl_slist* configureHeaders(const CallParams &params);
-
-  /// appends header fields to a curl header list
-  struct curl_slist* buildCurlHeaderList(struct curl_slist *headerList,
-                                          const std::unordered_map<std::string, std::vector<std::string>> &headers);
+  cpr::Parameters convertParameters(std::unordered_map<std::string, std::vector<std::string>> query);
 };
 
 } // namespace aurora
