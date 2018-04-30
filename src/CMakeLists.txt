@@ -1,5 +1,6 @@
 add_library(aurora STATIC
   Backend.cpp
+  HTTPClient.cpp
   AuroraError.cpp
   APIError.cpp)
 # look in ./include/ for aurora headers & add to interface

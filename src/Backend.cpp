@@ -1,5 +1,5 @@
 #include <aurora/Backend.h>
-#include <curl/curl.h>
+#include <aurora/HTTPClient.h>
 #include <nlohmann/json.hpp>
 #include <iostream>
 #include <aurora/errors/AuroraError.h>
@@ -24,22 +24,19 @@ size_t writeFunction(void *ptr, size_t size, size_t nmemb, Buffer *data) {
 }
 
 Backend::Backend(const std::string &url) : m_baseURL(url) {
-  curl_global_init(CURL_GLOBAL_DEFAULT);
-  m_curl = curl_easy_init();
-
-  if (!m_curl) {
-    throw AuroraError("0", "curl failed to initialize", "no info");
-  }
+  m_client = new HTTPClient();
 }
+
+Backend::Backend(const std::string &url, HTTPClient *client)
+  : m_baseURL(url), m_client(client) {}
 
 Backend::~Backend() {
-  curl_easy_cleanup(m_curl);
-  curl_global_cleanup();
+  delete m_client;
 }
 
-HTTPResponse Backend::call(const CallParams &params) {
-  // reset all curl options back to the defaults
-  curl_easy_reset(m_curl);
+HTTPResponse Backend::call(CallParams &params) {
+  // reset all options back to the defaults
+  m_client->reset();
 
   // HTTP response body
   Buffer responseBody;
@@ -49,23 +46,23 @@ HTTPResponse Backend::call(const CallParams &params) {
   std::string requestURL = buildRequestURL(params);
 
   // set HTTP request URL
-  curl_easy_setopt(m_curl, CURLOPT_URL, requestURL.c_str());
+  m_client->setOpt(CURLOPT_URL, requestURL.c_str());
   // set libcurl to call writeFunction when data is received
-  curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, writeFunction);
+  m_client->setOpt(CURLOPT_WRITEFUNCTION, writeFunction);
   // write the response body
-  curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &responseBody);
+  m_client->setOpt(CURLOPT_WRITEDATA, &responseBody);
   // write the response header
-  curl_easy_setopt(m_curl, CURLOPT_HEADERDATA, &responseHeader);
+  m_client->setOpt(CURLOPT_HEADERDATA, &responseHeader);
 
   // build headers
   // curl_slist MUST BE FREED after request
   struct curl_slist *reqHeaderList = configureHeaders(params);
 
   // perform HTTP request
-  CURLcode res = curl_easy_perform(m_curl);
+  CURLcode res = m_client->perform();
 
   // free headers
-  curl_slist_free_all(reqHeaderList);
+  m_client->freeSlist(reqHeaderList);
 
   // check if HTTP request failed
   if (res != CURLE_OK) {
@@ -73,8 +70,7 @@ HTTPResponse Backend::call(const CallParams &params) {
   }
 
   // get http response code
-  long responseCode;
-  curl_easy_getinfo(m_curl, CURLINFO_RESPONSE_CODE, &responseCode);
+  long responseCode = m_client->getInfo(CURLINFO_RESPONSE_CODE);
 
   return {responseBody, responseHeader, responseCode};
 }
@@ -96,7 +92,7 @@ std::string Backend::buildQueryString(const std::unordered_map<std::string, std:
       if (isFirst) isFirst = false;
       else queryString += "&";
 
-      queryString.append(URLEncode(key)).append("=").append(URLEncode(value));
+      queryString.append(m_client->escape(key)).append("=").append(m_client->escape(value));
     }
   }
 
@@ -108,18 +104,7 @@ std::string Backend::buildRequestURL(const CallParams &params) {
   return requestURL;
 }
 
-std::string Backend::URLEncode(const std::string &str) {
-  char *output = curl_easy_escape(m_curl, str.c_str(), 0);
 
-  if(output) {
-    std::string temp = output;
-    // need to free resources allocated by curl
-    curl_free(output);
-    return temp;
-  }
-
-  throw AuroraError("0", "curl failed to url encode string", str);
-}
 
 struct curl_slist* Backend::configureHeaders(const CallParams &params) {
   // reqHeaderlist MUST BE FREED later
@@ -131,10 +116,10 @@ struct curl_slist* Backend::configureHeaders(const CallParams &params) {
                                       {"X-Application-Token", {params.credentials.appToken}},
                                       {"X-Device-ID", {params.credentials.deviceID}}});
   // tell curl to use our headers
-  curl_easy_setopt(m_curl, CURLOPT_HTTPHEADER, reqHeaderList);
+  m_client->setOpt(CURLOPT_HTTPHEADER, reqHeaderList);
 
   // set HTTP method (GET, POST, etc.)
-  curl_easy_setopt(m_curl, CURLOPT_CUSTOMREQUEST, params.method.c_str());
+  m_client->setOpt(CURLOPT_CUSTOMREQUEST, params.method.c_str());
 
   return reqHeaderList;
 }
@@ -149,7 +134,7 @@ struct curl_slist* Backend::configureHeaders(const CallParams &params) {
       // must not be CRLF terminated, curl does it for us
       std::string field = key + std::string(": ") +value; // "Key: value"
       // curl_slist_append copies the string, so okay to give it underlying c-string
-      curl_slist_append(headerList, field.c_str());
+      m_client->slistAppend(headerList, field.c_str());
     }
   }
 

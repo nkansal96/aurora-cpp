@@ -4,8 +4,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <curl/curl.h>
-#include "aurora/errors/APIError.h"
+#include <aurora/HTTPClient.h>
+#include <aurora/errors/APIError.h>
 
 namespace aurora {
 
@@ -65,10 +65,11 @@ public:
    * @param url the base url string that all requests will use
    */
   explicit Backend(const std::string &url = baseURL);
+  Backend(const std::string &url, HTTPClient *client);
   ~Backend();
 
   /// execute an HTTP request
-  HTTPResponse call(const CallParams &params);
+  HTTPResponse call(CallParams &params);
 
   void setBaseURL(const std::string &url);
 
@@ -76,16 +77,14 @@ private:
   /// the base url string that all requests will use
   std::string m_baseURL;
 
-  CURL *m_curl;
+  /// wrapper around underlying network library
+  HTTPClient *m_client;
 
   /// convert map of query params to a URL query string, for example "?key1=value1&key2=value2"
   std::string buildQueryString(const std::unordered_map<std::string, std::vector<std::string>> &query);
 
   /// builds the full request URL with base + path + query
   std::string buildRequestURL(const CallParams &params);
-
-  /// converts string to URL encoded version
-  std::string URLEncode(const std::string &str);
 
   /**
    * configures curl user headers, authentication headers, and HTTP method
