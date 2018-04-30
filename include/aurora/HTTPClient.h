@@ -13,9 +13,11 @@ typedef void (*funcptr)(void);
 class HTTPClient {
 public:
   HTTPClient();
-  ~HTTPClient();
+  virtual ~HTTPClient();
 
+  /// curl setup
   virtual void setup();
+  /// curl cleanup
   virtual void cleanup();
 
   /// clear all options
@@ -28,7 +30,9 @@ public:
   virtual long getInfo(CURLINFO flag);
   /// execute HTTP request
   virtual CURLcode perform();
+  /// get description of curl error code
   virtual std::string stringFromError(CURLcode code);
+  /// url encode a string
   virtual std::string escape(const std::string &str);
 
   /// add chunk to slist, will be copied
@@ -40,7 +44,7 @@ private:
   CURL *m_curl;
 };
 
-// template implementations
+// template implementations (must be in header)
 
 template <typename T>
 void HTTPClient::setOpt(CURLoption opt, T arg) {

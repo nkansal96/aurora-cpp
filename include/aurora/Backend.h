@@ -66,12 +66,12 @@ public:
    */
   explicit Backend(const std::string &url = baseURL);
   Backend(const std::string &url, HTTPClient *client);
-  ~Backend();
+  virtual ~Backend();
 
   /// execute an HTTP request
-  HTTPResponse call(CallParams &params);
+  virtual HTTPResponse call(CallParams &params);
 
-  void setBaseURL(const std::string &url);
+  virtual void setBaseURL(const std::string &url);
 
 private:
   /// the base url string that all requests will use

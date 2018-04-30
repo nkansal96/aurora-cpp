@@ -1,21 +1,21 @@
-#include "gtest/gtest.h"
-#include "aurora/Backend.h"
+#include <gtest/gtest.h>
+#include <gmock/gmock.h>
+#include <aurora/Backend.h>
 
 #include <iostream>
 
 namespace {
 
 // The fixture for testing class Foo.
-class FooTest : public ::testing::Test {
- protected:
+class BackendTest : public ::testing::Test {
+protected:
   // You can remove any or all of the following functions if its body
   // is empty.
-
-  FooTest() {
+  BackendTest() {
     // You can do set-up work for each test here.
   }
 
-  virtual ~FooTest() {
+  virtual ~BackendTest() {
     // You can do clean-up work that doesn't throw exceptions here.
   }
 
@@ -35,10 +35,15 @@ class FooTest : public ::testing::Test {
   // Objects declared here can be used by all tests in the test case for Foo.
 };
 
-  TEST(FooTest, AuroraTest) {
-    aurora::Backend b;
-    b.setBaseURL("https://google.com");
-  }
+TEST(BackendTest, DummyTest) {
+  aurora::Backend b;
+  aurora::CallParams cp;
+  cp.query = {{"key1", {"value1", "value2"}}};
+  auto res = b.call(cp);
+  std::string body(res.response.begin(), res.response.end());
+  std::cout << "CODE: " << res.code << std::endl
+            << "BODY: " << body << std::endl;
+}
 
 }  // namespace
 
