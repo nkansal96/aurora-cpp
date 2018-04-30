@@ -10,6 +10,11 @@ namespace aurora {
 
 const std::string baseURL = "https://api.auroraapi.com";
 
+using Buffer = std::vector<char>;
+using Query = std::unordered_map<std::string, std::string>;
+using Headers = cpr::Header; // map<string, string>
+using Form = std::unordered_map<std::string, std::string>;
+
 /// MultipartFile is an in-memory representation of a file to upload.
 struct MultipartFile {
   /// Name is the form field name
@@ -17,7 +22,7 @@ struct MultipartFile {
   /// Filename is the file name to upload the file as
   std::string filename;
   /// Data is the file data
-  std::vector<char> data;
+  Buffer data;
 };
 
 /// Credentials for the API request.
@@ -36,13 +41,13 @@ struct CallParams {
   /// Path is the relative path of the query
   std::string path;
   /// Headers are any additional headers to send in the request
-  std::unordered_map<std::string, std::vector<std::string>> headers;
+  Headers headers;
   /// Body is any data to send in the body
-  std::vector<char> body;
+  Buffer body;
   /// Form is ignored for non-multipart calls. It is multipart form data
-  std::unordered_map<std::string, std::vector<std::string>> form;
+  Form form;
   /// Query is querystring parameters
-  std::unordered_map<std::string, std::vector<std::string>> query;
+  Query query;
   /// Files is ignored for non-multipart calls. It is multipart file data
   std::vector<MultipartFile> files;
   /// Credentials are the AppID, AppToken, etc. required to make the call
@@ -52,7 +57,7 @@ struct CallParams {
 /// returned result of a successful call
 struct HTTPResponse {
   std::string response;
-  std::unordered_map<std::string, std::string> header;
+  Headers header;
   int statusCode;
 };
 
@@ -73,8 +78,6 @@ public:
 private:
   /// the base url string that all requests will use
   std::string m_baseURL;
-
-  cpr::Parameters convertParameters(std::unordered_map<std::string, std::vector<std::string>> query);
 };
 
 } // namespace aurora
