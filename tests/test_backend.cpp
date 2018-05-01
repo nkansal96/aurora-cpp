@@ -36,15 +36,15 @@ protected:
 };
 
 TEST(BackendTest, DummyTest) {
-  aurora::Backend b("https://postman-echo.com/delay/2");
+  aurora::Backend b("https://postman-echo.com/get");
   aurora::CallParams cp;
-  cp.method = "GET";
+  cp.method = aurora::GET;
   cp.query = {{"key1", "value1"}};
   aurora::Credentials cred;
   cred.appID = "test-app-id";
   cp.credentials = cred;
-  auto fut = b.call(cp);
-  std::cout << "BACKEND CALL" << fut.get().response << std::endl;
+  aurora::HTTPResponse res = b.call(cp);
+  std::cout << "BACKEND CALL RESPONSE: " << std::endl << res.response << std::endl;
 }
 
 }  // namespace

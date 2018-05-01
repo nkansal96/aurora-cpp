@@ -11,6 +11,7 @@
 
 namespace aurora {
 
+/// default baseURL
 const std::string baseURL = "https://api.auroraapi.com";
 
 // type aliases for convenience & readability
@@ -39,9 +40,13 @@ struct Credentials {
   std::string deviceID;
 };
 
+/// supported HTTP methods
+enum HTTPMethod {GET, POST};
+
+/// parameter structure for call method
 struct CallParams {
-  /// Method is one of GET, POST, PATCH, DELETE, etc.
-  std::string method;
+  /// Method is one of GET, POST
+  HTTPMethod method;
   /// Path is the relative path of the query
   std::string path;
   /// Headers are any additional headers to send in the request
@@ -79,9 +84,9 @@ public:
   /**
    * execute an HTTP request
    */
-  virtual std::future<HTTPResponse> call(CallParams &params);
+  virtual HTTPResponse call(CallParams &params);
 
-  // set base request url, will be suffixed by CallParams.path
+  /// set base request url, will be suffixed by CallParams.path
   virtual void setBaseURL(const std::string &url);
 
 private:

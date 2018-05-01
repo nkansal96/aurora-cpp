@@ -11,7 +11,7 @@ Backend::Backend(const std::string &url) : m_baseURL(url) {}
 
 Backend::~Backend() {}
 
-std::future<HTTPResponse> Backend::call(CallParams &params) {
+HTTPResponse Backend::call(CallParams &params) {
   cpr::Url url(m_baseURL + params.path);
 
   // copy over query parameters from params to cpr object
@@ -26,19 +26,21 @@ std::future<HTTPResponse> Backend::call(CallParams &params) {
 
   cpr::Body body(params.body.data(), params.body.size());
 
-  // wrapper lambda that converts cpr::Response to HTTPResponse
-  auto callback = [=](cpr::Response res) {
-    return HTTPResponse{res.text, res.header, res.status_code};
-  };
-
   // execute request
-  // TODO: destrucors of futures cuase blocking
-  if (params.method == "GET")
-    return cpr::GetCallback(callback, url, reqParams, credentials, body);
-  else if (params.method == "POST")
-    return cpr::PostCallback(callback, url, reqParams, credentials, body);
-  else
-    throw AuroraError("0", "Unrecognized HTTP method", params.method);
+  cpr::Response res;
+  switch (params.method) {
+  case GET:
+    res =  cpr::Get(url, reqParams, credentials, body);
+    break;
+  case POST:
+    res = cpr::Post(url, reqParams, credentials, body);
+    break;
+  default:
+    throw AuroraError("0", "Unrecognized HTTP method", "no info");
+  }
+
+  // convert to HTTPResponse
+  return {res.text, res.header, res.status_code};
 }
 
 void Backend::setBaseURL(const std::string &url) {
