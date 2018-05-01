@@ -5,11 +5,15 @@
 #include <unordered_map>
 #include <vector>
 #include <cpr/cpr.h>
+#include <functional>
+#include <future>
+#include <aurora/errors/AuroraError.h>
 
 namespace aurora {
 
 const std::string baseURL = "https://api.auroraapi.com";
 
+// type aliases for convenience & readability
 using Buffer = std::vector<char>;
 using Query = std::unordered_map<std::string, std::string>;
 using Headers = cpr::Header; // map<string, string>
@@ -56,8 +60,11 @@ struct CallParams {
 
 /// returned result of a successful call
 struct HTTPResponse {
+  /// response payload (body)
   std::string response;
+  /// map of header keys to values
   Headers header;
+  /// HTTP status code
   int statusCode;
 };
 
@@ -69,8 +76,10 @@ public:
   explicit Backend(const std::string &url = baseURL);
   virtual ~Backend();
 
-  /// execute an HTTP request
-  virtual HTTPResponse call(CallParams &params);
+  /**
+   * execute an HTTP request
+   */
+  virtual std::future<HTTPResponse> call(CallParams &params);
 
   // set base request url, will be suffixed by CallParams.path
   virtual void setBaseURL(const std::string &url);
