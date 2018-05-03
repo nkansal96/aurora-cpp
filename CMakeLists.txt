@@ -40,6 +40,14 @@ fetch_json(
   ${THIRD_PARTY_DIR}/json)
 
 # ----------------------------------------------------------------------------
+# portaudio library
+# ----------------------------------------------------------------------------
+include(cmake/portaudio.cmake)
+fetch_portaudio(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/portaudio)
+
+# ----------------------------------------------------------------------------
 # Aurora c++ library target
 # ----------------------------------------------------------------------------
 add_subdirectory(src)

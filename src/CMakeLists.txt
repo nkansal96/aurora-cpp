@@ -8,4 +8,5 @@ target_include_directories(aurora PUBLIC
 # add dependencies to interface
 target_link_libraries(aurora PUBLIC
   cpr
-  json)
+  json
+  portaudio_static)
