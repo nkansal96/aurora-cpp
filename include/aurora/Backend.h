@@ -12,7 +12,7 @@
 namespace aurora {
 
 /// default baseURL
-const std::string baseURL = "https://api.auroraapi.com";
+const std::string baseURL = "https://api.auroraapi.com/v1";
 
 // type aliases for convenience & readability
 using Buffer = std::vector<char>;

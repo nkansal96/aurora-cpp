@@ -6,6 +6,11 @@
 
 namespace aurora {
 
+  const std::string INTERPRET_PATH = "/interpret/";
+  const std::string TTS_PATH = "/tts/";
+  const std::string STT_PATH = "/stt/";                                                           
+
+   
 struct InterpretResponse {
   /// Text is the original query
   std::string text;
