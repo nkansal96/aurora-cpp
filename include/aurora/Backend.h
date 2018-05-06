@@ -5,8 +5,6 @@
 #include <unordered_map>
 #include <vector>
 #include <cpr/cpr.h>
-#include <functional>
-#include <future>
 #include <aurora/errors/AuroraError.h>
 
 namespace aurora {

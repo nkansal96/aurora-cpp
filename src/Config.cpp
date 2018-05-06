@@ -1,4 +1,5 @@
 #include "aurora/Config.h"
+#include "aurora/Backend.h"
 
 namespace aurora {
 
@@ -20,6 +21,10 @@ Config::~Config() {
 void Config::setBackend(Backend *b) {
   delete backend;
   backend = b;
+}
+
+Credentials Config::getCredentials() {
+  return {config.appID, config.appToken, config.deviceID};
 }
 
 }

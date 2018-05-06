@@ -27,6 +27,9 @@ public:
 
   /// will clean up resources used by old backend before assigning new value
   void setBackend(Backend *b);
+
+  /// bundles up deviceID, appToken, appID into a Credentials object
+  Credentials getCredentials();
 };
 
 /// global config object

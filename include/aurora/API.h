@@ -6,6 +6,9 @@
 
 namespace aurora {
 
+// forward declarations
+struct HTTPResponse;
+
 const std::string INTERPRET_PATH = "/interpret/";
 const std::string TTS_PATH = "/tts/";
 const std::string STT_PATH = "/stt/";
@@ -39,6 +42,9 @@ public:
    * @param text the string to be interpreted
    */
   static InterpretResponse getInterpret(const std::string &text);
+
+  /// check status code for API errors and throw exception if so
+  static void checkStatus(HTTPResponse &res);
 };
 
 } // namespace aurora

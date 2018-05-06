@@ -1,9 +1,6 @@
 #include <aurora/Backend.h>
 #include <cpr/cpr.h>
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <future>
 
 namespace aurora {
 

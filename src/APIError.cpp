@@ -35,4 +35,8 @@ std::string APIError::getInfo() const {
   return m_info;
 }
 
+const char* APIError:: what() const noexcept {
+  return "Aurora API Error";
+}
+
 } // namespace aurora

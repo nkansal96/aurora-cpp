@@ -2,12 +2,18 @@
 #include "aurora/Backend.h"
 #include "aurora/Config.h"
 #include "aurora/errors/AuroraError.h"
+#include "aurora/errors/APIError.h"
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include <string>
 
+#include <iostream>
+
 /// for convenience
 using json = nlohmann::json;
+
+// HTTP status codes
+const int STATUS_CODE_OK = 200;
 
 namespace aurora {
 
@@ -16,15 +22,14 @@ InterpretResponse API::getInterpret(const std::string &text) {
   CallParams params;
   params.method = GET;
   params.path = INTERPRET_PATH;
-  params.credentials = {config.appID,
-                        config.appToken,
-                        config.deviceID};
+  params.credentials = config.getCredentials();
   params.query["text"] = text;
 
   // request interpretation from API server
   HTTPResponse httpRes = config.backend->call(params);
 
-  // TODO: check for API errors
+  // check if there were api errors
+  API::checkStatus(httpRes);
 
   // convert response body to json object
   json j = json::parse(httpRes.response);
@@ -37,7 +42,7 @@ InterpretResponse API::getInterpret(const std::string &text) {
     interpretRes.intent = j["intent"];
   }
   else {
-    throw AuroraError("0", "No 'intent' field found in interpret response object", "API::getInterpret");
+    throw AuroraError("MissingIntentField", "No 'intent' field found in interpret response object", "API::getInterpret");
   }
 
 
@@ -49,12 +54,19 @@ InterpretResponse API::getInterpret(const std::string &text) {
     }
   }
   else {
-    throw AuroraError("0", "No 'entities' field found in interpret response object", "API::getInterpret");
+    throw AuroraError("MissingEntitiesField", "No 'entities' field found in interpret response object", "API::getInterpret");
   }
 
   return interpretRes;
 }
 
+void API::checkStatus(HTTPResponse &res) {
+  if (res.statusCode != STATUS_CODE_OK) {
+    // convert response body to json object
+    json j = json::parse(res.response);
 
+    throw APIError(j["id"], std::to_string(res.statusCode), j["code"], j["type"], j["message"], "API::checkStatus");
+  }
+}
 
 }

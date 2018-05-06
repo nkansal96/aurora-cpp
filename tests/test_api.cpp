@@ -5,6 +5,7 @@
 #include <aurora/Aurora.h>
 #include <nlohmann/json.hpp>
 #include <aurora/errors/AuroraError.h>
+#include <aurora/errors/APIError.h>
 #include <iostream>
 
 // mocks
@@ -116,6 +117,35 @@ TEST(APITest, InterpretMissingEntitiesFieldException) {
 
   missingFieldTests(j);
 }
+
+TEST(APITest, MissingCredentialsException) {
+  MockBackend *backend = new MockBackend();
+  config.setBackend(backend);
+
+  json j = {
+    {"id", "123"},
+    {"status", 400},
+    {"code", "MissingApplicationID"},
+    {"type", "BadRequest"},
+    {"message", "Your request is missing the 'X-Application-ID header."}
+  };
+
+  HTTPResponse mockRes;
+  mockRes.response = j.dump();
+  mockRes.statusCode = 400;
+
+  auto mockedCall = [=]() { return mockRes; };
+
+  // replace call with mocked version
+  ON_CALL(*backend, call(_)).WillByDefault(InvokeWithoutArgs(mockedCall));
+
+  // API should only invoke call once
+  EXPECT_CALL(*backend, call(_)).Times(1);
+
+  // exception thrown for 400 status code
+  ASSERT_THROW(API::getInterpret("hello world"), APIError);
+}
+
 
 }  // namespace
 
