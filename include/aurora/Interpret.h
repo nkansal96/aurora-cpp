@@ -9,7 +9,7 @@ namespace aurora {
 
 class Interpret {
 public:
-  Interpret(InterpretResponse &res) : intent(res.intent), entities(res.entities) {}
+  explicit Interpret(InterpretResponse &res) : intent(res.intent), entities(res.entities) {}
 
   /**
    * Intent represents the intent of the user. This can be an empty string if

@@ -6,6 +6,10 @@
 
 namespace aurora {
 
+const std::string INTERPRET_PATH = "/interpret/";
+const std::string TTS_PATH = "/tts/";
+const std::string STT_PATH = "/stt/";
+
 struct InterpretResponse {
   /// Text is the original query
   std::string text;
@@ -26,17 +30,15 @@ public:
    * a transcript of the speech.
    * TODO: audio file param
    */
-  std::string getSTT();
+  static std::string getSTT();
 
   // TODO: return audio file
-  void getTTS(std::string text);
+  static void getTTS(const std::string &text);
   /**
    * queries the API with the provided text and returns the interpreted response
    * @param text the string to be interpreted
    */
-  InterpretResponse getInterpret(std::string text);
-private:
-
+  static InterpretResponse getInterpret(const std::string &text);
 };
 
 } // namespace aurora
