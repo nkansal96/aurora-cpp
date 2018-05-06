@@ -15,7 +15,7 @@ Interpret Text::interpret() const {
   return Interpret(res);
 }
 
-std::string Text::text() const {
+std::string Text::getText() const {
   return m_text;
 }
 
