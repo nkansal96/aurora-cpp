@@ -33,7 +33,7 @@ public:
   virtual Interpret interpret() const;
 
   /// returns the encapsulated text string
-  virtual std::string text() const;
+  virtual std::string getText() const;
 private:
   std::string m_text;
 };
