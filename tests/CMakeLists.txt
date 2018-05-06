@@ -1,12 +1,14 @@
 # ----------------------------------------------------------------------------
-# backend test target
+# API test target
 # ----------------------------------------------------------------------------
-add_executable(test_backend
-  test_backend.cpp)
+add_executable(test_api
+  test_api.cpp)
 # link googletest and aurora to test
-target_link_libraries(test_backend
+target_link_libraries(test_api
   gtest_main
   gmock_main
   aurora)
-# add test_backend target to tests
-add_test(NAME test_backend COMMAND test_backend)
+# add test_api target to tests
+add_test(NAME test_api COMMAND test_api)
+
+

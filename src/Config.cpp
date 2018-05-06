@@ -17,4 +17,9 @@ Config::~Config() {
   delete backend;
 }
 
+void Config::setBackend(Backend *b) {
+  delete backend;
+  backend = b;
+}
+
 }

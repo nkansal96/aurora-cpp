@@ -6,8 +6,10 @@
 
 namespace aurora {
 
-struct Config {
+class Config {
+public:
   Config();
+  /// Config will handle memory management of the argument Backend
   explicit Config(Backend *b);
   ~Config();
 
@@ -22,6 +24,9 @@ struct Config {
 
   /// Backend to use for requests (configurable for testing purposes)
   Backend *backend;
+
+  /// will clean up resources used by old backend before assigning new value
+  void setBackend(Backend *b);
 };
 
 /// global config object
