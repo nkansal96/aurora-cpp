@@ -17,6 +17,7 @@ class Interpret;
 class Text {
 public:
   explicit Text(const std::string &text) : m_text(text) {}
+  virtual ~Text() {}
 
   /**
    * Speech calls the Aurora TTS service on the text encapsulated in this object

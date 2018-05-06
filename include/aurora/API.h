@@ -8,6 +8,7 @@ namespace aurora {
 
 // forward declarations
 struct HTTPResponse;
+class AudioFile;
 
 const std::string INTERPRET_PATH = "/interpret/";
 const std::string TTS_PATH = "/tts/";
@@ -33,7 +34,7 @@ public:
    * a transcript of the speech.
    * TODO: audio file param
    */
-  static std::string getSTT();
+  static std::string getSTT(AudioFile &file);
 
   // TODO: return audio file
   static void getTTS(const std::string &text);

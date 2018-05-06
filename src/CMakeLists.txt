@@ -3,7 +3,8 @@ add_library(aurora STATIC
   AuroraError.cpp
   APIError.cpp
   API.cpp
-  Config.cpp)
+  Config.cpp
+  Text.cpp)
 # look in ../include/ for aurora headers & add to interface
 target_include_directories(aurora PUBLIC
   ${CMAKE_SOURCE_DIR}/include)

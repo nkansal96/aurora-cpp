@@ -17,6 +17,38 @@ const int STATUS_CODE_OK = 200;
 
 namespace aurora {
 
+std::string API::getSTT(AudioFile &file) {
+  // set up API call params
+  CallParams params;
+  params.method = POST;
+  params.path = STT_PATH;
+  params.credentials = config.getCredentials();
+  // TODO: set body to audiofile data
+
+  HTTPResponse httpRes = config.backend->call(params);
+
+  // TODO
+  return "";
+}
+
+
+void getTTS(const std::string &text) {
+  // set up API call params
+  CallParams params;
+  params.method = GET;
+  params.path = TTS_PATH;
+  params.credentials = config.getCredentials();
+  params.query["text"] = text;
+
+  // request interpretation from API server
+  HTTPResponse httpRes = config.backend->call(params);
+
+  // check if there were api errors
+  API::checkStatus(httpRes);
+
+  // TODO: return httpRes.response as audiofile
+}
+
 InterpretResponse API::getInterpret(const std::string &text) {
   // set up API call params
   CallParams params;

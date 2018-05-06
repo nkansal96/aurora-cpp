@@ -33,7 +33,7 @@ HTTPResponse Backend::call(CallParams &params) {
     res = cpr::Post(url, reqParams, credentials, body);
     break;
   default:
-    throw AuroraError("0", "Unrecognized HTTP method", "no info");
+    throw AuroraError("BackendUnknownHTTPMethod", "Unrecognized HTTP method", "Backend::call");
   }
 
   // convert to HTTPResponse

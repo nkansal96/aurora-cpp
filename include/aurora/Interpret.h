@@ -16,7 +16,7 @@ public:
    * the intent of the user was unclear. Otherwise, it will be one of the
    * pre-determined values listed in the Aurora dashboard.
    */
-  const std::string intent;
+  std::string intent;
 
   /**
    * Entities contain auxiliary information about the user's utterance. This
@@ -24,7 +24,7 @@ public:
    * will be a key-value listing according to the entities described on the
    * Aurora dashboard.
    */
-  const std::unordered_map<std::string, std::string> entities;
+  std::unordered_map<std::string, std::string> entities;
 };
 
 } // namespace aurora

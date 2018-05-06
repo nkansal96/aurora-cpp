@@ -6,7 +6,6 @@
 #include <nlohmann/json.hpp>
 #include <aurora/errors/AuroraError.h>
 #include <aurora/errors/APIError.h>
-#include <iostream>
 
 // mocks
 #include "mocks/mock_backend.h"
