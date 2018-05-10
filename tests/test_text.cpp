@@ -3,8 +3,8 @@
 #include <aurora/Backend.h>
 #include <aurora/Aurora.h>
 #include <nlohmann/json.hpp>
-#include <aurora/Text.h>
 #include <aurora/Interpret.h>
+#include <memory>
 
 
 // mocks
@@ -48,7 +48,7 @@ protected:
 
 TEST(TextTest, InterpretTest) {
   MockBackend *backend = new MockBackend();
-  config.setBackend(backend);
+  config.backend = std::unique_ptr<Backend>(backend);
 
   json j = {
     {"intent", "greeting"},

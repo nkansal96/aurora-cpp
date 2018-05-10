@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <aurora/errors/AuroraError.h>
 #include <aurora/errors/APIError.h>
+#include <memory>
 
 // mocks
 #include "mocks/mock_backend.h"
@@ -48,7 +49,7 @@ protected:
 
 TEST(APITest, InterpretTest) {
   MockBackend *backend = new MockBackend();
-  config.setBackend(backend);
+  config.backend = std::unique_ptr<Backend>(backend);
 
   json j = {
     {"intent", "greeting"},
@@ -80,7 +81,7 @@ TEST(APITest, InterpretTest) {
 
 void missingFieldTests(json &j) {
   MockBackend *backend = new MockBackend();
-  config.setBackend(backend);
+  config.backend = std::unique_ptr<Backend>(backend);
 
   HTTPResponse mockRes;
   mockRes.response = j.dump();
@@ -119,7 +120,7 @@ TEST(APITest, InterpretMissingEntitiesFieldException) {
 
 TEST(APITest, MissingCredentialsException) {
   MockBackend *backend = new MockBackend();
-  config.setBackend(backend);
+  config.backend = std::unique_ptr<Backend>(backend);
 
   json j = {
     {"id", "123"},

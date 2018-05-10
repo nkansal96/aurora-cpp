@@ -1,16 +1,18 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include <string.h>
-#include "aurora/Backend.h"
+#include <string>
+#include <memory>
 
 namespace aurora {
+
+// forward declarations
+class Backend;
+struct Credentials;
 
 class Config {
 public:
   Config();
-  /// Config will handle memory management of the argument Backend
-  explicit Config(Backend *b);
   ~Config();
 
   /// DeviceID is the value to send as the `X-Device-ID` header (optional)
@@ -23,10 +25,7 @@ public:
   std::string appID;
 
   /// Backend to use for requests (configurable for testing purposes)
-  Backend *backend;
-
-  /// will clean up resources used by old backend before assigning new value
-  void setBackend(Backend *b);
+  std::unique_ptr<Backend> backend;
 
   /// bundles up deviceID, appToken, appID into a Credentials object
   Credentials getCredentials();
