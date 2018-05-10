@@ -21,6 +21,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(DOWNLOAD_CPPCHECK "Download and build cppcheck from Github" ON)
 option(ENABLE_TESTS "Download & build googletest and run Aurora tests" ON)
+option(CREATE_EXAMPLES "Build demo executables" ON)
 
 # ----------------------------------------------------------------------------
 # cpr (curl wrapper) library
@@ -98,6 +99,13 @@ if (ENABLE_TESTS)
   add_subdirectory(tests)
 endif()
 
+# ----------------------------------------------------------------------------
+# Examples
+# ----------------------------------------------------------------------------
+if(CREATE_EXAMPLES)
+	
+	add_subdirectory(examples)
+endif()
 # ----------------------------------------------------------------------------
 # Doxygen
 # ----------------------------------------------------------------------------
