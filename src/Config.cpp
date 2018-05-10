@@ -7,7 +7,7 @@ namespace aurora {
 /// global config object
 Config config;
 
-Config::Config() : backend(std::unique_ptr<Backend>(new Backend())) {}
+Config::Config() : backend(new Backend()) {}
 
 Config::~Config() {}
 
