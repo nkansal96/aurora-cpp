@@ -19,9 +19,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # options
 # ----------------------------------------------------------------------------
 
-option(DOWNLOAD_CPPCHECK "Download and build cppcheck from Github" ON)
+option(ENABLE_CPPCHECK "Download and build cppcheck from Github" ON)
 option(ENABLE_TESTS "Download & build googletest and run Aurora tests" ON)
-option(CREATE_EXAMPLES "Build demo executables" ON)
+option(ENABLE_EXAMPLES "Build demo executables" ON)
 
 # ----------------------------------------------------------------------------
 # cpr (curl wrapper) library
@@ -56,7 +56,7 @@ add_subdirectory(src)
 # ----------------------------------------------------------------------------
 # cppcheck static code analyzer
 # ----------------------------------------------------------------------------
-if (DOWNLOAD_CPPCHECK)
+if (ENABLE_CPPCHECK)
   set(CPPCHECK_INSTALL_PREFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cppcheck)
 
   include(cmake/cppcheck.cmake)
@@ -102,10 +102,10 @@ endif()
 # ----------------------------------------------------------------------------
 # Examples
 # ----------------------------------------------------------------------------
-if(CREATE_EXAMPLES)
-	
+if(ENABLE_EXAMPLES)
 	add_subdirectory(examples)
 endif()
+
 # ----------------------------------------------------------------------------
 # Doxygen
 # ----------------------------------------------------------------------------
