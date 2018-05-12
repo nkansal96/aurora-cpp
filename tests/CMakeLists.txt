@@ -1,28 +1,30 @@
+macro(test_macro test_name)
+  add_executable(test_${test_name}
+    test_${test_name}.cpp)
+  # link googletest and aurora to test
+  target_link_libraries(test_${test_name}
+    gtest_main
+    gmock_main
+    aurora)
+  # add test target to tests
+  add_test(NAME test_${test_name} COMMAND test_${test_name})
+endmacro(test_macro)
+
 # ----------------------------------------------------------------------------
 # API test target
 # ----------------------------------------------------------------------------
-add_executable(test_api
-  test_api.cpp)
-# link googletest and aurora to test
-target_link_libraries(test_api
-  gtest_main
-  gmock_main
-  aurora)
-# add test_api target to tests
-add_test(NAME test_api COMMAND test_api)
+test_macro(api)
 
 # ----------------------------------------------------------------------------
 # Text test target
 # ----------------------------------------------------------------------------
-add_executable(test_text
-  test_text.cpp)
-# link googletest and aurora to test
-target_link_libraries(test_text
-  gtest_main
-  gmock_main
-  aurora)
-# add test_text target to tests
-add_test(NAME test_text COMMAND test_text)
+test_macro(text)
+
+# ----------------------------------------------------------------------------
+# Backend test target
+# ----------------------------------------------------------------------------
+test_macro(backend)
+
 
 
 

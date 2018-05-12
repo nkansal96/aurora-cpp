@@ -71,6 +71,7 @@ struct HTTPResponse {
   int statusCode;
 };
 
+/// Abstraction of HTTP request library
 class Backend {
 public:
   /**
@@ -90,6 +91,12 @@ public:
 private:
   /// the base url string that all requests will use
   std::string m_baseURL;
+
+  /// wrapper around cpr::Get
+  virtual cpr::Response get(cpr::Url &url, cpr::Parameters &params, cpr::Header &header, cpr::Body &body);
+
+  /// wrapper around cpr::Post
+  virtual cpr::Response post(cpr::Url &url, cpr::Parameters &params, cpr::Header &header, cpr::Body &body);
 };
 
 } // namespace aurora

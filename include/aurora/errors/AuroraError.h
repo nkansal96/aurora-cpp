@@ -5,6 +5,7 @@
 #include <exception>
 
 namespace aurora {
+
 /// used for errors that occur in the Aurora client library
 class AuroraError : public std::exception {
 public:
