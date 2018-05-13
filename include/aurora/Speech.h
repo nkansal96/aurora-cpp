@@ -67,7 +67,7 @@ class Speech {
 public:
 
   /// construct a new Speech object from the given audio file
-  Speech(AudioFile &file);
+  explicit Speech(AudioFile &file);
 
   /**
    * Text calls the Aurora STT API and converts a user's utterance into
@@ -76,9 +76,11 @@ public:
    */
   virtual Text text();
 
+  /// returns a reference to the underlying audio file object
+  virtual AudioFile& getAudio();
 private:
   /**
-   * Audio is the underlying audio that this struct wraps. You can create
+   * m_file is the underlying audio that this struct wraps. You can create
    * a speech object and set this directly if you want to operate on some
    * pre-recorded audio
    */

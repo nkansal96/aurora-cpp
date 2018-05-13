@@ -25,11 +25,19 @@ WAV::WAV(int numChannels, int sampleRate, int audioFormat, int bitsPerSample, Bu
 
 WAV::~WAV() {}
 
+int WAV::getSampleRate() {
+  return m_sampleRate;
+}
+
+int WAV::getNumChannels() {
+  return m_numChannels;
+}
+
 void WAV::setData(Buffer &audioData) {
   m_audioData = audioData;
 }
 
-Buffer WAV::getData() {
+Buffer& WAV::getData() {
   return m_audioData;
 }
 

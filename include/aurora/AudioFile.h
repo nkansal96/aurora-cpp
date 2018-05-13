@@ -14,8 +14,8 @@ namespace aurora {
 class AudioFile {
 public:
   /// create an audio file from a byte buffer containing WAV data
-  AudioFile(Buffer &b);
-  AudioFile(std::string &filename);
+  explicit AudioFile(Buffer &b);
+  explicit AudioFile(std::string &filename);
   ~AudioFile();
 
   /// writes the audio data to a file

@@ -5,6 +5,7 @@ add_library(aurora STATIC
   API.cpp
   Config.cpp
   Text.cpp
+  Speech.cpp
   WAV.cpp
   AudioFile.cpp)
 # look in ../include/ for aurora headers & add to interface

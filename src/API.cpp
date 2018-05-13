@@ -3,6 +3,7 @@
 #include "aurora/Config.h"
 #include "aurora/errors/AuroraError.h"
 #include "aurora/errors/APIError.h"
+#include "aurora/AudioFile.h"
 #include <cpr/cpr.h>
 #include <nlohmann/json.hpp>
 #include <string>
@@ -23,16 +24,27 @@ std::string API::getSTT(AudioFile &file) {
   params.method = POST;
   params.path = STT_PATH;
   params.credentials = config.getCredentials();
-  // TODO: set body to audiofile data
+  params.body = file.getWAVData();
 
+  // request text from API server
   HTTPResponse httpRes = config.backend->call(params);
 
-  // TODO
-  return "";
+  // check if there were api errors
+  API::checkStatus(httpRes);
+
+  // convert response body to json object
+  json j = json::parse(httpRes.response);
+
+  // extract transcript field value
+  if (j.find("transcript") == j.end()) {
+    throw AuroraError("MissingTranscriptField", "No 'transcript' field found in stt response object", "API::getSTT");
+  }
+
+  return j["transcript"];
 }
 
 
-void getTTS(const std::string &text) {
+AudioFile API::getTTS(const std::string &text) {
   // set up API call params
   CallParams params;
   params.method = GET;
@@ -40,13 +52,15 @@ void getTTS(const std::string &text) {
   params.credentials = config.getCredentials();
   params.query["text"] = text;
 
-  // request interpretation from API server
+  // request speech from API server
   HTTPResponse httpRes = config.backend->call(params);
 
   // check if there were api errors
   API::checkStatus(httpRes);
 
-  // TODO: return httpRes.response as audiofile
+  // copy response into a buffer and create an audio file with it
+  Buffer audioBuffer(httpRes.response.begin(), httpRes.response.end());
+  return AudioFile(audioBuffer);
 }
 
 InterpretResponse API::getInterpret(const std::string &text) {
@@ -69,24 +83,22 @@ InterpretResponse API::getInterpret(const std::string &text) {
   InterpretResponse interpretRes;
   interpretRes.text = text;
 
-  // extract interpret value
-  if (j.find("intent") != j.end()) {
-    interpretRes.intent = j["intent"];
-  }
-  else {
+  // ensure intent field exists
+  if (j.find("intent") == j.end()) {
     throw AuroraError("MissingIntentField", "No 'intent' field found in interpret response object", "API::getInterpret");
   }
 
+  interpretRes.intent = j["intent"];
 
-  // extract entities field
-  if (j.find("entities") != j.end()) {
-    const auto entities = j["entities"];
-    for (auto it = entities.begin(); it != entities.end(); it++) {
-      interpretRes.entities[it.key()] = it.value();
-    }
+  // ensure entities field exists
+  if (j.find("entities") == j.end()) {
+    throw AuroraError("MissingEntitiesField", "No 'entities' field found in interpret response object", "API::getInterpret"); 
   }
-  else {
-    throw AuroraError("MissingEntitiesField", "No 'entities' field found in interpret response object", "API::getInterpret");
+
+  // copy entities into map
+  const auto entities = j["entities"];
+  for (auto it = entities.begin(); it != entities.end(); it++) {
+    interpretRes.entities[it.key()] = it.value();
   }
 
   return interpretRes;

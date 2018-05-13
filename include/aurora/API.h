@@ -32,12 +32,15 @@ public:
   /**
    * getSTT queries the API with the provided audio file and returns
    * a transcript of the speech.
-   * TODO: audio file param
    */
   static std::string getSTT(AudioFile &file);
 
-  // TODO: return audio file
-  static void getTTS(const std::string &text);
+  /**
+   * getTTS calls the TTS API given some text and returns an AudioFile
+   * with the audio from converting the text to speech.
+   */
+  static AudioFile getTTS(const std::string &text);
+
   /**
    * queries the API with the provided text and returns the interpreted response
    * @param text the string to be interpreted

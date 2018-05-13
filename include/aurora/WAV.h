@@ -18,7 +18,7 @@ const int defaultBitsPerSample = 16;
 class WAV {
 public:
   WAV();
-  WAV(Buffer &audioData);
+  explicit WAV(Buffer &audioData);
   WAV(int numChannels, int sampleRate, int audioFormat, int bitsPerSample, Buffer &audioData);
   virtual ~WAV();
 
@@ -26,7 +26,7 @@ public:
   virtual int getNumChannels();
 
   virtual void setData(Buffer &audioData);
-  virtual Buffer getData();
+  virtual Buffer& getData();
 private:
   int m_numChannels;
   int m_sampleRate;
