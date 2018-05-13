@@ -4,7 +4,9 @@ add_library(aurora STATIC
   APIError.cpp
   API.cpp
   Config.cpp
-  Text.cpp)
+  Text.cpp
+  WAV.cpp
+  AudioFile.cpp)
 # look in ../include/ for aurora headers & add to interface
 target_include_directories(aurora PUBLIC
   ${CMAKE_SOURCE_DIR}/include)
