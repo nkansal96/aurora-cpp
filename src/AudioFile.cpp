@@ -7,7 +7,7 @@ AudioFile::AudioFile(Buffer &b) : m_audioData(b), m_playing(false), m_shouldStop
 
 AudioFile::~AudioFile() {}
 
-void AudioFile::writeToFile(std::string &filename) {}
+void AudioFile::writeToFile(const std::string &filename) {}
 
 void AudioFile::pad(float seconds) {}
 

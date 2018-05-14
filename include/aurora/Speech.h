@@ -67,7 +67,7 @@ class Speech {
 public:
 
   /// construct a new Speech object from the given audio file
-  explicit Speech(AudioFile &file);
+  explicit Speech(const AudioFile &file);
 
   /**
    * Text calls the Aurora STT API and converts a user's utterance into

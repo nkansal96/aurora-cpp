@@ -15,36 +15,36 @@ class AudioFile {
 public:
   /// create an audio file from a byte buffer containing WAV data
   explicit AudioFile(Buffer &b);
-  explicit AudioFile(std::string &filename);
-  ~AudioFile();
+  explicit AudioFile(const std::string &filename);
+  virtual ~AudioFile();
 
   /// writes the audio data to a file
-  void writeToFile(std::string &filename);
+  virtual void writeToFile(const std::string &filename);
 
   /**
    * Pad adds silence to both the beginning and end of the audio data
    * @param seconds the duration of silence to pad with, in seconds
    */
-  void pad(float seconds);
+  virtual void pad(float seconds);
 
   /// add silence to the beginning of the audio data
-  void padLeft(float seconds);
+  virtual void padLeft(float seconds);
 
   /// add silence to the end of the audio data
-  void padRight(float seconds);
+  virtual void padRight(float seconds);
 
   /// trim silence from both ends of the audio file
-  void trimSilence();
+  virtual void trimSilence();
 
   /// stop the audio playback immediately
-  void stop();
+  virtual void stop();
 
   /// stop the audio playback immediately
-  void play();
+  virtual void play();
 
   /// returns the wav data contained in the audio file
   // TODO: avoid returning a copy
-  Buffer getWAVData();
+  virtual Buffer getWAVData();
 private:
   WAV m_audioData;
   bool m_playing;

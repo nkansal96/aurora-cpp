@@ -24,7 +24,7 @@ public:
    * and converts it to a `Speech` object. Further operations can then be done
    * on it, such as saving to file or speaking the resulting audio.
    */
-  //virtual Speech speech() const;
+  virtual Speech speech() const;
 
   /**
    * Interpret calls the Aurora Interpret service on the text encapsulated in this
@@ -35,9 +35,16 @@ public:
 
   /// returns the encapsulated text string
   virtual std::string getText() const;
+
+  bool operator==(const Text &other) const;
+
 private:
   std::string m_text;
 };
+
+/// enable comparison of Text objects with strings
+inline bool operator==(const Text &lhs, const std::string &rhs) { return lhs.getText() == rhs; }
+inline bool operator==(const std::string &lhs, const Text &rhs) { return lhs == rhs.getText(); }
 
 } // namespace aurora
 

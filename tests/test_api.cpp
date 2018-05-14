@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <aurora/errors/AuroraError.h>
 #include <aurora/errors/APIError.h>
+#include <aurora/AudioFile.h>
 #include <memory>
 
 // mocks
@@ -116,6 +117,30 @@ TEST(APITests, MissingCredentialsException) {
   ASSERT_THROW(API::getInterpret("hello world"), APIError);
 }
 
+// test API::getSTT with normal server response
+TEST(APITests, GetSTTTest) {
+  MockBackend *backend = new MockBackend();
+  config.backend = std::unique_ptr<Backend>(backend);
+
+  json j = {
+    {"transcript", "hello world"}
+  };
+
+  HTTPResponse mockRes;
+  mockRes.response = j.dump();
+  mockRes.statusCode = 200;
+
+  // backend will return mockRes when called
+  ON_CALL(*backend, call(_)).WillByDefault(ReturnPointee(&mockRes));
+
+  EXPECT_CALL(*backend, call(_)).Times(1);
+
+  Buffer b;
+  AudioFile audioFile(b);
+  std::string textFromSpeech = API::getSTT(audioFile);
+
+  EXPECT_EQ(textFromSpeech, "hello world");
+}
 
 }  // namespace
 

@@ -4,7 +4,7 @@
 
 namespace aurora {
 
-Speech::Speech(AudioFile &file) : m_file(file) {}
+Speech::Speech(const AudioFile &file) : m_file(file) {}
 
 Text Speech::text() {
   return Text(API::getSTT(m_file));

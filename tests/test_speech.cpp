@@ -1,11 +1,10 @@
-#include <gtest/gtest.h>
-#include <gmock/gmock.h>
+#include <aurora/AudioFile.h>
+#include <aurora/Speech.h>
+#include <aurora/Text.h>
+#include <aurora/Config.h>
 #include <aurora/Backend.h>
-#include <aurora/Aurora.h>
 #include <nlohmann/json.hpp>
-#include <aurora/Interpret.h>
 #include <memory>
-
 
 // mocks
 #include "mocks/mock_backend.h"
@@ -16,16 +15,12 @@ using namespace testing;
 
 namespace {
 
-TEST(TextTests, InterpretTest) {
+TEST(SpeechTests, TextTest) {
   MockBackend *backend = new MockBackend();
   config.backend = std::unique_ptr<Backend>(backend);
 
   json j = {
-    {"intent", "greeting"},
-    {"entities", {
-        {"person", "bob"}
-      }
-    }
+    {"transcript", "hello world"}
   };
 
   HTTPResponse mockRes;
@@ -38,19 +33,11 @@ TEST(TextTests, InterpretTest) {
   // API should only invoke call once
   EXPECT_CALL(*backend, call(_)).Times(1);
 
-  Text tx = Text("hello world");
-  Interpret res = tx.interpret();
-  // test intent field
-  EXPECT_EQ(res.intent, "greeting");
+  Buffer b;
+  AudioFile audioFile(b);
+  Speech sp(audioFile);
 
-  // test entites field
-  std::string person = res.entities["person"];
-  EXPECT_EQ(person, "bob");
+  EXPECT_EQ(sp.text(), "hello world");
 }
 
-}  // namespace
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
+} // namespace
