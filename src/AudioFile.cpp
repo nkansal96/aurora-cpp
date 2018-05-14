@@ -1,5 +1,5 @@
 #include "aurora/AudioFile.h"
-#include "portaudiocpp/PortAudioCpp.hxx"
+#include "portaudio.h"
 
 namespace aurora {
 
@@ -20,33 +20,11 @@ void AudioFile::trimSilence() {}
 void AudioFile::stop() {}
 
 void AudioFile::play() {
-  //portaudio::AutoSystem autoSys;
-  //portaudio::System &sys = portaudio::System::instance();
 
-  /*
-  portaudio::DirectionSpecificStreamParameters inParams = portaudio::DirectionSpecificStreamParameters::null();
-  portaudio::DirectionSpecificStreamParameters outParams(sys.defaultOutputDevice(),
-                                                         m_audioData.getNumChannels(),
-                                                         portaudio::INT32,
-                                                         true,
-                                                         sys.defaultOutputDevice().defaultLowInputLatency(),
-                                                         NULL);
-  portaudio::StreamParameters params(inParams,
-                                     outParams,
-                                     m_audioData.getSampleRate(),
-                                     getWAVData().size(),
-                                     paClipOff);
-
-  portaudio::BlockingStream stream(params);
-
-  stream.start();
-  */
-
-  //stream.write(getWAVData(), getWAVData().size());
 }
 
 Buffer AudioFile::getWAVData() {
-  return m_audioData.getData();
+  return m_audioData.data();
 }
 
 } // namespace aurora

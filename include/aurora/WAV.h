@@ -25,13 +25,15 @@ public:
   virtual int getSampleRate();
   virtual int getNumChannels();
 
-  virtual void setData(Buffer &audioData);
-  virtual Buffer& getData();
+  /// returns a fully formatted WAV file (headers + raw audio data)
+  virtual Buffer data();
 private:
   int m_numChannels;
   int m_sampleRate;
   int m_audioFormat;
   int m_bitsPerSample;
+
+  /// raw audio data stored in the WAV file (no headers)
   Buffer m_audioData;
 };
 

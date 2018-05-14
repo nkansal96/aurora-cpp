@@ -33,12 +33,9 @@ int WAV::getNumChannels() {
   return m_numChannels;
 }
 
-void WAV::setData(Buffer &audioData) {
-  m_audioData = audioData;
-}
-
-Buffer& WAV::getData() {
-  return m_audioData;
+Buffer WAV::data() {
+  // TODO
+  return {};
 }
 
 }

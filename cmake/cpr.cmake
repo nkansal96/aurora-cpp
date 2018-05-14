@@ -25,6 +25,11 @@ macro(fetch_cpr _download_module_path _download_root)
   # set options
   set(BUILD_CPR_TESTS OFF CACHE INTERNAL "build cpr tests")
 
+  if(APPLE)
+    set(USE_SYSTEM_CURL ON CACHE INTERNAL "do use system curl")
+    set(CMAKE_USE_DARWINSSL ON CACHE INTERNAL "use darwinssl")
+  endif()
+
   # adds the target 'cpr'
   add_subdirectory(
     ${_download_root}/cpr-src
