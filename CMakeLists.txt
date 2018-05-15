@@ -4,6 +4,8 @@ project(aurora LANGUAGES C CXX)
 # compile with C++11
 set(CMAKE_CXX_STANDARD 11)
 
+# set directory for openssl
+
 # library & binary destinations
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
@@ -47,6 +49,15 @@ include(cmake/portaudio.cmake)
 fetch_portaudio(
   ${PROJECT_SOURCE_DIR}/cmake
   ${THIRD_PARTY_DIR}/portaudio)
+
+# ----------------------------------------------------------------------------
+# libsndfile library
+# ----------------------------------------------------------------------------
+include(cmake/libsndfile.cmake)
+fetch_libsndfile(
+  ${PROJECT_SOURCE_DIR}/cmake
+  ${THIRD_PARTY_DIR}/libsndfile)
+
 
 # ----------------------------------------------------------------------------
 # Aurora c++ library target
