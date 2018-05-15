@@ -15,4 +15,5 @@ target_include_directories(aurora PUBLIC
 target_link_libraries(aurora PUBLIC
   cpr
   json
-  portaudio_static)
+  portaudio_static
+  sndfile-static)

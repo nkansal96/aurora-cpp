@@ -9,7 +9,7 @@ ExternalProject_Add(
   SOURCE_DIR "@LIBSNDFILE_DOWNLOAD_ROOT@/libsndfile-src"
   BINARY_DIR "@LIBSNDFILE_DOWNLOAD_ROOT@/libsndfile-build"
   GIT_REPOSITORY https://github.com/erikd/libsndfile.git
-  GIT_TAG 1.0.28
+  GIT_TAG 7ea3f9d8746000cc82c016d0b5d48452bb80e9fe
   CONFIGURE_COMMAND ""
   BUILD_COMMAND ""
   INSTALL_COMMAND ""

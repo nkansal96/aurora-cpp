@@ -22,9 +22,20 @@ macro(fetch_libsndfile _download_module_path _download_root)
     ${_download_root}
     )
 
-  # add all search paths to interface
-  # add_library(libsndfile INTERFACE)
-  include_directories( ${_download_root}/libsndfile-src/src)
+  # set options
+  set(BUILD_SHARED_LIBS OFF CACHE INTERNAL "don't build shared lib")
+  set(BUILD_STATIC_LIBS ON CACHE INTERNAL "build static lib")
+  set(DISABLE_EXTERNAL_LIBS ON CACHE INTERNAL "disable support for OGG, VORBIS, FLAC")
+  set(BUILD_PROGRAMS OFF CACHE INTERNAL "don't build libsndfile utils")
+  set(BUILD_TESTING OFF CACHE INTERNAL "don't build tests")
+  set(BUILD_EXAMPLES OFF CACHE INTERNAL "don't build examples")
+
+
+  # adds the target 'libsndfile'
+  add_subdirectory(
+    ${_download_root}/libsndfile-src
+    ${_download_root}/libsndfile-build
+    )
 
 
 endmacro()
