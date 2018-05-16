@@ -33,6 +33,10 @@ int WAV::getNumChannels() {
   return m_numChannels;
 }
 
+Buffer& WAV::audioData() {
+  return m_audioData;
+}
+
 Buffer WAV::data() {
   // TODO
   return {};

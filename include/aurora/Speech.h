@@ -94,7 +94,7 @@ private:
  * parameters by recording from the default input device.
  * Currently, this function uses the default audio input interface (an option
  * to change this will be available at a later time).
-*/
+ */
 Speech listen(const ListenParams &params);
 
 /**

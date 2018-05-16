@@ -25,6 +25,9 @@ public:
   virtual int getSampleRate();
   virtual int getNumChannels();
 
+  /// returns raw audio data
+  virtual Buffer& audioData();
+
   /// returns a fully formatted WAV file (headers + raw audio data)
   virtual Buffer data();
 private:
