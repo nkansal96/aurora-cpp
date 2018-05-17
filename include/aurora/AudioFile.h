@@ -3,6 +3,7 @@
 
 #include "aurora/WAV.h"
 #include <string>
+#include <portaudio.h>
 
 namespace aurora {
 
@@ -46,9 +47,6 @@ public:
   virtual void trimSilence();
 
   /// stop the audio playback immediately
-  virtual void stop();
-
-  /// stop the audio playback immediately
   virtual void play();
 
   /// returns the wav data contained in the audio file
@@ -56,8 +54,8 @@ public:
   virtual Buffer getWAVData();
 private:
   WAV m_audioData;
-  bool m_playing;
-  bool m_shouldStop;
+
+  void checkPortAudioError(PaError &error);
 };
 
 } // namespace aurora
