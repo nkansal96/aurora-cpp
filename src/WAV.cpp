@@ -154,7 +154,7 @@ Buffer& WAV::wav_header(int dataLen){
   uint32_t byteRate = m_sampleRate * uint32_t(m_numChannels) * uint32_t(m_bitsPerSample) / 8;
   write_uint_to_littleendian(byteRate, &((*header)[28]));
 
-  // Block Align = NumChannels * BitsPerSample/8
+  // Block Align = NumChannels * BitsPerSample/8. 2 by default
   uint16_t blockAlign = m_numChannels * m_bitsPerSample / 8;
   write_uint_to_littleendian(blockAlign,  &((*header)[32]));
 
@@ -168,7 +168,7 @@ Buffer& WAV::wav_header(int dataLen){
   (*header)[39] = 'a';
 
   // Data length
-  write_uint_to_littleendian(uint32_t(dataLen), &((*header)[34]));
+  write_uint_to_littleendian(uint32_t(dataLen), &((*header)[40]));
 
   return *header;
 }
