@@ -15,7 +15,16 @@ class AudioFile {
 public:
   /// create an audio file from a byte buffer containing WAV data
   explicit AudioFile(Buffer &b);
+  /// ceate an AudioFile by specifying the file name
   explicit AudioFile(const std::string &filename);
+  /**
+   * Create a new audio file by recording from the default input
+   * @param length specifies the max length of the recording in seconds
+   * @param silenceLen specifies in seconds how much consecutive silence
+   * to wait before ending the recording
+   */
+  AudioFile(float length, float silenceLen);
+
   virtual ~AudioFile();
 
   /// writes the audio data to a file

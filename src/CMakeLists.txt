@@ -7,6 +7,7 @@ add_library(aurora STATIC
   Text.cpp
   Speech.cpp
   WAV.cpp
+  utils.cpp
   AudioFile.cpp)
 # look in ../include/ for aurora headers & add to interface
 target_include_directories(aurora PUBLIC

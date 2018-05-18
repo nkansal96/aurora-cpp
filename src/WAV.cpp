@@ -1,6 +1,7 @@
 #include "aurora/WAV.h"
 #include "sndfile.hh"
 #include <cmath>
+#include <iostream>
 #include "aurora/utils.h"
 
 //implement these: https://github.com/auroraapi/aurora-go/blob/master/audio/wav.go
@@ -68,6 +69,8 @@ int WAV::getNumChannels() {
   return m_numChannels;
 }
 
+
+
 void WAV::trimSilent(double threshold, double padding){
   int sampleSize = m_numChannels * (m_bitsPerSample/8); 
   int step = 1024;
@@ -104,8 +107,80 @@ void WAV::trimSilent(double threshold, double padding){
 }
 
 
-Buffer WAV::data() {
+Buffer& WAV::audioData() {
   return {m_audioData};
+}
+
+Buffer& WAV::wav_header(int dataLen){
+  int headerLen = 44;
+  uint32_t chunkSize = (dataLen + headerLen - 8);
+  //std::cout << "Chunk size is: " << (chunkSize & 0xff) << std::endl;
+  // first create the header, then append the rest of the file
+  Buffer *header = new Buffer(headerLen);
+
+  // RIFF header
+  (*header)[0] = 'R';
+  (*header)[1] = 'I';
+  (*header)[2] = 'F';
+  (*header)[3] = 'F';
+
+  //Chunk size, little-endian in 4 bytes
+  // (*header)[4] = chunkSize & 0xff;
+  // (*header)[5] = (chunkSize >> 8 ) & 0xff;
+  // (*header)[6] = (chunkSize >> 16) & 0xff;
+  // (*header)[7] = (chunkSize >> 24) & 0xff; 
+  write_uint_to_littleendian(chunkSize, &((*header)[4]));
+
+  // Format (WAVE)
+  (*header)[8] = 'W';
+  (*header)[9] = 'A';
+  (*header)[10] = 'V';
+  (*header)[11] = 'E';
+  // Metadata subchunk ID ("fmt ")
+  (*header)[12] = 'f';
+  (*header)[13] = 'm';
+  (*header)[14] = 't';
+  (*header)[15] = ' ';
+  //Metadata subchunk size (16)
+  write_uint_to_littleendian(uint32_t(16), &((*header)[16]));
+  //Audio format (PCM = 1)
+  write_uint_to_littleendian(uint16_t(m_audioFormat), &((*header)[20]));
+  // Num Channels (Mono = 1)
+  write_uint_to_littleendian(uint16_t(m_numChannels), &((*header)[22]));
+  // Sample Rate (16000 Hz)
+  write_uint_to_littleendian(uint32_t(m_sampleRate), &((*header)[24]));
+
+  // Byte Rate = SampleRate * NumChannels * BitsPerSample/8 = 32000
+  uint32_t byteRate = m_sampleRate * uint32_t(m_numChannels) * uint32_t(m_bitsPerSample) / 8;
+  write_uint_to_littleendian(byteRate, &((*header)[28]));
+
+  // Block Align = NumChannels * BitsPerSample/8
+  uint16_t blockAlign = m_numChannels * m_bitsPerSample / 8;
+  write_uint_to_littleendian(blockAlign,  &((*header)[32]));
+
+  // Bits per sample = 16
+  write_uint_to_littleendian(uint16_t(m_bitsPerSample), &((*header)[34]));
+
+  // Data subchunk ID ("data")
+  (*header)[36] = 'd';
+  (*header)[37] = 'a';
+  (*header)[38] = 't';
+  (*header)[39] = 'a';
+
+  // Data length
+  write_uint_to_littleendian(uint32_t(dataLen), &((*header)[34]));
+
+  return *header;
+}
+
+Buffer WAV::data() {
+  // find first data index
+  int dataLen = m_audioData.size();
+  Buffer wav = wav_header(dataLen);
+  wav.insert(wav.end(), m_audioData.begin(), m_audioData.end());
+
+
+  return wav;
 }
 
 }
