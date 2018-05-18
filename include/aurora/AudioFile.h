@@ -3,6 +3,7 @@
 
 #include "aurora/WAV.h"
 #include <string>
+#include <portaudio.h>
 
 namespace aurora {
 
@@ -19,7 +20,7 @@ public:
   explicit AudioFile(const std::string &filename);
   /**
    * Create a new audio file by recording from the default input
-   * @param length specifies the max length of the recording in seconds
+   * @param length specifies the length of the recording in seconds
    * @param silenceLen specifies in seconds how much consecutive silence
    * to wait before ending the recording
    */
@@ -46,18 +47,15 @@ public:
   virtual void trimSilence();
 
   /// stop the audio playback immediately
-  virtual void stop();
-
-  /// stop the audio playback immediately
   virtual void play();
 
-  /// returns the wav data contained in the audio file
-  // TODO: avoid returning a copy
+  /// returns the full WAV file data (headers + raw audio) contained in the audio file
+  // TODO: return a reference
   virtual Buffer getWAVData();
 private:
   WAV m_audioData;
-  bool m_playing;
-  bool m_shouldStop;
+
+  void checkPortAudioError(PaError &error);
 };
 
 } // namespace aurora
