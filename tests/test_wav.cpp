@@ -49,6 +49,22 @@ TEST(WAVtests, five_arg_constructor) {
   EXPECT_EQ(to_test.audioData(), buf);
 }
 
+TEST(WAVtests, WavFromFormattedFile) {
+  Buffer buf;
+  for(char i=0; i<100; i++){
+    buf.push_back(i);
+  }
+  buf.push_back('R');
+  buf.push_back('I');
+  buf.push_back('F');
+  buf.push_back('F');
+  for(char i=0; i<100; i++){
+    buf.push_back(i);
+  }
+
+  WAV to_test = aurora::WAV::WavFromFormattedFile(buf);
+}
+
 //eventually make the wav array longer so the buffer is bigger -- tests data 5-7
 TEST(WAVtests, data) {
   int data_len = 100;
@@ -115,6 +131,8 @@ TEST(WAVtests, data) {
   EXPECT_EQ(uint8_t(data[43]), uint8_t(0));
 
 }
+
+
 
 }  // namespace
 

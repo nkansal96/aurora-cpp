@@ -17,6 +17,16 @@ template<typename T> void write_uint_to_littleendian(T number, char* bytes){
 	}
 }
 
+//writes uint of arbitrary size to littleendian char array.
+//function definition needs to be in header because it's a templated function
+template<typename T> void read_uint_from_littleendian(T &number, char* bytes){
+	number = 0; 
+	for(int i=0; i< sizeof(number); i++){
+		number = number | T(bytes[i]) << (8 * (sizeof(number) - i - 1));
+	}
+}
+
+
 //void write_uint_to_littleendian(unsigned number, char* bytes);
 
 // rms calculates the root-mean-square of a sequence of audio data. For

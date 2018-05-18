@@ -59,6 +59,53 @@ WAV::WAV(int numChannels, int sampleRate, int audioFormat, int bitsPerSample, Bu
     m_bitsPerSample(bitsPerSample),
     m_audioData(audioData) {}
 
+WAV& WAV::WavFromFormattedFile(Buffer &data){
+  unsigned i= 4;
+  while(i < data.size() && (data[i-4] != 'R' || data[i-3] != 'I' || data[i-2] != 'F' || data[i-1] != 'F' )){
+    i++;
+  }
+  int dataLen = data.size() - i;
+  if(dataLen <= 0){
+    //throw exception here
+    std::cerr << "Corrupted Wavefile" << std::endl; 
+  }
+
+  int hOff = i - 4;
+
+  if ((int(data.size()) - hOff - 44) < 0) {
+    //throw exception here
+    std::cerr << "Corrupted Wavefile" << std::endl; 
+  }  
+
+  // Verifies that "WAVE" letters exist in big endian form
+  if (data[hOff+8] != 'W' || data[hOff+9] != 'A' || data[hOff+10] != 'V' || data[hOff+11] != 'E') {
+    //return nil, errors.NewFromErrorCodeInfo(errors.WAVCorruptFile, "The letters `WAVE` should exist from bytes 8 to 11 in big endian form from the start of the header to indicate that it is a WAVE format file.")
+    std::cerr << "Corrupted Wavefile" << std::endl; 
+
+  }
+
+  // Verifies that "fmt " letters exist in big endian form
+  if (data[hOff+12] != 'f' || data[hOff+13] != 'm' || data[hOff+14] != 't' || data[hOff+15] != ' ' ){
+    //return nil, errors.NewFromErrorCodeInfo(errors.W(AVCorruptFile, "The letters `fmt ` should exist from bytes 12 to 15 in big endian form from the start of the header to indicate the subchunk 1 ID")
+    std::cerr << "Corrupted Wavefile" << std::endl; 
+  }
+
+  // Verifies that the "data" letters exist in big endian form
+  if (data[hOff+36] != 'd' || data[hOff+37] != 'a' || data[hOff+38] != 't' || data[hOff+39] != 'a') {
+    //return nil, errors.NewFromErrorCodeInfo(errors.WAVCorruptFile, "The letters `data` should exist from bytes 36 to 39 in big endian form from the start of the header to indicate the subchunk 2 ID.")
+    std::cerr << "Corrupted Wavefile" << std::endl; 
+  }
+  WAV* wavefile = new WAV(); 
+  read_uint_from_littleendian(wavefile->m_numChannels, &data.data()[hOff+22]);
+  read_uint_from_littleendian(wavefile->m_sampleRate, &data.data()[hOff+24]);
+  read_uint_from_littleendian(wavefile->m_bitsPerSample, &data.data()[hOff+36]);
+  Buffer::const_iterator start_of_audio_data = data.begin() + hOff + 44;
+  wavefile->m_audioData = Buffer(start_of_audio_data, data.end());
+
+  return *wavefile;
+}
+
+
 WAV::~WAV() {}
 
 int WAV::getSampleRate() {

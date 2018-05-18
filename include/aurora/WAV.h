@@ -20,6 +20,7 @@ public:
   WAV();
   explicit WAV(Buffer &audioData);
   WAV(int numChannels, int sampleRate, int audioFormat, int bitsPerSample, Buffer &audioData);
+  static WAV& WavFromFormattedFile(Buffer &data);
   virtual ~WAV();
 
   virtual int getSampleRate();
@@ -32,10 +33,10 @@ public:
   /// returns a fully formatted WAV file (headers + raw audio data)
   virtual Buffer data();
 private:
-  int m_numChannels;
-  int m_sampleRate;
-  int m_audioFormat;
-  int m_bitsPerSample;
+  uint16_t m_numChannels;
+  uint32_t m_sampleRate;
+  uint16_t m_audioFormat;
+  uint16_t m_bitsPerSample;
 
   //generate WAV header from data
   virtual Buffer& wav_header(int dataLen);
