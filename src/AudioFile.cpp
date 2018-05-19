@@ -1,4 +1,5 @@
 #include "aurora/AudioFile.h"
+#include "aurora/errors/AuroraError.h"
 #include "portaudio.h"
 #include <sndfile.hh>
 #include <portaudio.h>
@@ -39,13 +40,20 @@ Buffer record(float length, float silenceLen) {
   // create & configure portaudio audio stream
   PaStream *stream;
   err = Pa_OpenDefaultStream(&stream,
-                             1, // input channels
+                             1, // mono input channel
                              0, // no output channels
                              PORTAUDIO_SAMPLE_FORMAT,
                              defaultSampleRate,
-                             CHUNK_SIZE, // expected frames per buffer
+                             paFramesPerBufferUnspecified,
                              nullptr, // use blocking read instead of callback
                              nullptr); // no userData for blocking read
+  if (err != paNoError) {
+    // clean up portaudio resources before throwing
+    Pa_Terminate();
+
+    throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(err));
+  }
+
   // commences audio processing of stream
   err = Pa_StartStream(stream);
 
@@ -72,6 +80,9 @@ Buffer record(float length, float silenceLen) {
 
   // TODO: remove silence at beginning
 
+  // remove pop at beginning
+  // std::fill(outBuffer.begin(), outBuffer.begin() + 2000, 0);
+
   return outBuffer;
 }
 
@@ -87,7 +98,7 @@ AudioFile::AudioFile(const std::string &filename) {
   Buffer fileBuffer;
 
   // temporary buffer for reading in chunks of audio file
-  const int CHUNK_SIZE = 128;
+  const int CHUNK_SIZE = 512;
   AudioSampleType tempBuffer[CHUNK_SIZE];
 
   sf_count_t numItemsRead = 0;
@@ -105,12 +116,12 @@ AudioFile::AudioFile(const std::string &filename) {
   }
 
   // create WAV object from info & raw audio data
-  m_audioData = WAV(fileHandle.channels(), fileHandle.samplerate(), fileHandle.format(), BITS_PER_SAMPLE, fileBuffer);
+  m_audioData = WAV(fileBuffer, fileHandle.channels(), fileHandle.samplerate(), fileHandle.format(), BITS_PER_SAMPLE);
 }
 
 AudioFile::AudioFile(float length, float silenceLen) {
   Buffer recordBuffer = record(length, silenceLen);
-  m_audioData = WAV(recordBuffer);
+  m_audioData = WAV(recordBuffer, defaultNumChannels, defaultSampleRate, defaultAudioFormat, BITS_PER_SAMPLE);
 }
 
 AudioFile::~AudioFile() {}
@@ -122,7 +133,7 @@ void AudioFile::writeToFile(const std::string &filename) {
   }
 
   fileHandle.write(reinterpret_cast<AudioSampleType*>(m_audioData.audioData().data()),
-                                                      m_audioData.audioData().size() / BYTES_PER_SAMPLE);
+                   m_audioData.audioData().size() / BYTES_PER_SAMPLE);
 }
 
 void AudioFile::pad(float seconds) {}

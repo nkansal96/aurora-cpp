@@ -33,7 +33,7 @@ TEST(SpeechTests, TextTest) {
   // API should only invoke call once
   EXPECT_CALL(*backend, call(_)).Times(1);
 
-  Buffer b;
+  Buffer b = WAV().data();
   AudioFile audioFile(b);
   Speech sp(audioFile);
 

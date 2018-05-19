@@ -6,6 +6,7 @@
 #include <vector>
 #include <cpr/cpr.h>
 #include <aurora/errors/AuroraError.h>
+#include "aurora/utils.h"
 
 namespace aurora {
 
@@ -13,7 +14,6 @@ namespace aurora {
 const std::string baseURL = "https://api.auroraapi.com/v1";
 
 // type aliases for convenience & readability
-using Buffer = std::vector<char>;
 using Query = std::unordered_map<std::string, std::string>;
 using Headers = cpr::Header; // map<string, string>
 using Form = std::unordered_map<std::string, std::string>;

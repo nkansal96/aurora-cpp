@@ -1,7 +1,7 @@
 #ifndef WAV_H
 #define WAV_H
 
-#include "aurora/Backend.h"
+#include "aurora/utils.h"
 
 namespace aurora {
 
@@ -18,9 +18,8 @@ const int defaultBitsPerSample = 16;
 class WAV {
 public:
   WAV();
-  explicit WAV(Buffer &audioData);
-  WAV(int numChannels, int sampleRate, int audioFormat, int bitsPerSample, Buffer &audioData);
-  static WAV& WavFromFormattedFile(Buffer &data);
+  explicit WAV(Buffer &data);
+  WAV(Buffer &audioData, int numChannels, int sampleRate, int audioFormat, int bitsPerSample);
   virtual ~WAV();
 
   virtual int getSampleRate();
@@ -39,7 +38,7 @@ private:
   uint16_t m_bitsPerSample;
 
   //generate WAV header from data
-  virtual Buffer& wav_header(int dataLen);
+  virtual Buffer WAVHeader(int dataLen);
 
   /// raw audio data stored in the WAV file (no headers)
   Buffer m_audioData;

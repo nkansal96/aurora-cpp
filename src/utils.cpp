@@ -2,9 +2,10 @@
 #include <cmath>
 #include <cinttypes>
 
+namespace aurora {
 
 uint16_t littleendian_to_uint(char first, char second){
-	uint16_t res = uint16_t(first) | (uint16_t(second) << 8);  
+	uint16_t res = uint16_t(first) | (uint16_t(second) << 8);
 	return res;
 }
 
@@ -15,7 +16,7 @@ uint16_t littleendian_to_uint(char first, char second){
 
 //translated from https://github.com/auroraapi/aurora-go/blob/c1aa007a72c1eb02b3cb2b85dfe164162157d32b/audio/utils.go
 
-double rms(int sampleSize, Buffer audioData){
+double rms(int sampleSize, Buffer &audioData){
 	double sum = 0.0;
 	for (int i = 0; i < audioData.size()-1; i += sampleSize) {
 		// had to hard code to Uint16 or else it tries to 8 bytes for Uint64
@@ -26,3 +27,5 @@ double rms(int sampleSize, Buffer audioData){
 
 	return std::sqrt(sum / (double(audioData.size() / sampleSize)));
 }
+
+} // namespace aurora

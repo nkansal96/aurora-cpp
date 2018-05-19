@@ -135,7 +135,7 @@ TEST(APITests, GetSTTTest) {
 
   EXPECT_CALL(*backend, call(_)).Times(1);
 
-  Buffer b;
+  Buffer b = WAV().data();
   AudioFile audioFile(b);
   std::string textFromSpeech = API::getSTT(audioFile);
 

@@ -1,7 +1,9 @@
-#include <vector>
-
 #ifndef UTILS_H
 #define UTILS_H
+
+#include <vector>
+
+namespace aurora {
 
 using Buffer = std::vector<char>;
 
@@ -34,6 +36,8 @@ template<typename T> void read_uint_from_littleendian(T &number, char* bytes){
 // value for `sampleSize` MUST be 2. This will change once we figure out
 // how to read a variable size of data during runtime.
 //translated from https://github.com/auroraapi/aurora-go/blob/c1aa007a72c1eb02b3cb2b85dfe164162157d32b/audio/utils.go
-double rms(int sampleSize, Buffer audioData);
+double rms(int sampleSize, Buffer &audioData);
 
-#endif 
+}
+
+#endif // namespace aurora
