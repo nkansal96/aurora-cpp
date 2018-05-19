@@ -4,87 +4,14 @@
 #include <sndfile.hh>
 #include <portaudio.h>
 #include <algorithm>
+#include <iostream>
+
+// disabled until portaudio bug fixed, as explained in
+// https://github.com/EddieRingle/portaudio/blob/9eb5f0b3d820a81d385504d9c54534abbeea1099/examples/paex_read_write_wire.c#L59
+#define CHECK_OVERFLOW  (0)
+#define CHECK_UNDERFLOW (0)
 
 namespace aurora {
-
-// audio file write defaults
-const int AUDIO_FILE_FORMAT = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-
-const PaSampleFormat PORTAUDIO_SAMPLE_FORMAT = paInt16; // 16 bits
-using AudioSampleType = short; // short = 2 bytes = 16 bits
-const int BITS_PER_SAMPLE = sizeof(AudioSampleType)*8; // 1 byte = 8 bits
-const int BYTES_PER_SAMPLE = sizeof(AudioSampleType);
-
-
-
-// TODO: move to Utils file
-/**
- * Record records audio from the default input device
- * @param length the duration of audio to record, in seconds
- * @param silenceLen if length is 0, the amount of silence in seconds to allow before
- * ending recording
- * @returns a Buffer containing the recorded raw audio data
- */
-Buffer record(float length, float silenceLen) {
-  // TODO: check errors
-
-  int totalSamplesToRecord = length * (float)defaultSampleRate;
-  const int CHUNK_SIZE = 512; // max number of samples to read at once
-
-  // buffer for storing recorded audio, big enough to hold all samples
-  Buffer outBuffer(totalSamplesToRecord * BYTES_PER_SAMPLE);
-
-  // initialize portaudio
-  PaError err = Pa_Initialize();
-
-  // create & configure portaudio audio stream
-  PaStream *stream;
-  err = Pa_OpenDefaultStream(&stream,
-                             1, // mono input channel
-                             0, // no output channels
-                             PORTAUDIO_SAMPLE_FORMAT,
-                             defaultSampleRate,
-                             paFramesPerBufferUnspecified,
-                             nullptr, // use blocking read instead of callback
-                             nullptr); // no userData for blocking read
-  if (err != paNoError) {
-    // clean up portaudio resources before throwing
-    Pa_Terminate();
-
-    throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(err));
-  }
-
-  // commences audio processing of stream
-  err = Pa_StartStream(stream);
-
-  // record audio in chunks
-  int progress = 0; // samples recorded so far
-  while (progress < totalSamplesToRecord) {
-    AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
-    int samplesRead = std::min(CHUNK_SIZE, totalSamplesToRecord - progress);
-    err = Pa_ReadStream(stream, buffPtr, samplesRead);
-
-    // TODO: check for silence
-
-    progress += samplesRead;
-  }
-
-  // terminates audio processing, waiting for all pending audio buffers to complete
-  err = Pa_StopStream(stream);
-
-  // close audio stream, discarding any pending buffers!
-  err = Pa_CloseStream(stream);
-
-  // clean up portaudio resources
-  Pa_Terminate();
-
-  // TODO: remove silence at beginning
-
-  // remove pop at beginning
-  // std::fill(outBuffer.begin(), outBuffer.begin() + 2000, 0);
-
-  return outBuffer;
-}
 
 AudioFile::AudioFile(Buffer &b) : m_audioData(b) {}
 
@@ -168,8 +95,12 @@ void AudioFile::play() {
   checkPortAudioError(err);
 
   // tell portaudio to play audio buffer
-  err = Pa_WriteStream(stream, m_audioData.audioData().data(), m_audioData.audioData().size()/(BYTES_PER_SAMPLE * numChannels));
-  checkPortAudioError(err);
+  int bytesPerSample = m_audioData.getBitsPerSample() / BITS_PER_BYTE;
+  Buffer &audioBuffer = m_audioData.audioData();
+  err = Pa_WriteStream(stream, audioBuffer.data(), audioBuffer.size()/(bytesPerSample * numChannels));
+  if (CHECK_UNDERFLOW) {
+    checkPortAudioError(err);
+  }
 
   // terminates audio processing, waiting for all pending audio buffers to complete
   err = Pa_StopStream(stream);

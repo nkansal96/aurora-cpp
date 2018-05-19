@@ -24,6 +24,7 @@ public:
 
   virtual int getSampleRate();
   virtual int getNumChannels();
+  virtual int getBitsPerSample();
   void trimSilent(double threshold, double padding);
 
   /// returns raw audio data
@@ -36,9 +37,6 @@ private:
   uint32_t m_sampleRate;
   uint16_t m_audioFormat;
   uint16_t m_bitsPerSample;
-
-  //generate WAV header from data
-  virtual Buffer WAVHeader(int dataLen);
 
   /// raw audio data stored in the WAV file (no headers)
   Buffer m_audioData;
