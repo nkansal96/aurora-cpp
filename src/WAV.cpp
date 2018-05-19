@@ -4,6 +4,7 @@
 #include <cmath>
 #include <iostream>
 #include "aurora/utils.h"
+#include "aurora/AudioFile.h"
 #include <memory>
 
 namespace aurora {
@@ -104,13 +105,14 @@ Buffer WAV::data() {
                            SFM_WRITE,
                            SF_FORMAT_WAV | SF_FORMAT_PCM_16,
                            m_numChannels,
-                           m_numChannels);
+                           m_sampleRate);
   if (fileHandle.error() != 0) {
     throw AuroraError("LibsndfileError", "Libsndfile encountered an error in opening a virtual file", fileHandle.strError());
   }
 
   // 'short' assumes bitsPerSample is 16
-  fileHandle.write(reinterpret_cast<short*>(m_audioData.data()), m_audioData.size() / m_bitsPerSample);
+  int bytesPerSample = m_bitsPerSample / BITS_PER_BYTE;
+  fileHandle.write(reinterpret_cast<short*>(m_audioData.data()), m_audioData.size() / bytesPerSample);
 
   return userData.buffer;
 }
