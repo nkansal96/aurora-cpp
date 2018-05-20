@@ -30,6 +30,11 @@ macro(fetch_cpr _download_module_path _download_root)
     set(CMAKE_USE_DARWINSSL ON CACHE INTERNAL "use darwinssl")
   endif()
 
+  if(WIN32)
+    set(CMAKE_USE_OPENSSL OFF CACHE INTERNAL "don't use openssl")
+    set(USE_WINDOWS_SSPI ON CACHE INTERNAL "do use winssl")
+  endif()
+
   # adds the target 'cpr'
   add_subdirectory(
     ${_download_root}/cpr-src
