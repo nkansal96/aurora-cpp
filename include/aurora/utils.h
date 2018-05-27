@@ -47,7 +47,7 @@ struct VirtualSoundFileUserData {
   Buffer buffer;
 
   VirtualSoundFileUserData() : offset(0) {}
-  VirtualSoundFileUserData(Buffer &b) : offset(0), buffer(b) {}
+  explicit VirtualSoundFileUserData(Buffer &b) : offset(0), buffer(b) {}
 };
 
 /**
