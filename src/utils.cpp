@@ -1,6 +1,13 @@
 #include "aurora/utils.h"
 #include <cmath>
 #include <cinttypes>
+#include <memory>
+#include <string>
+#include <algorithm>
+#include <portaudio.h>
+#include "aurora/AudioFile.h"
+#include "aurora/WAV.h"
+#include "aurora/errors/AuroraError.h"
 
 namespace aurora {
 
@@ -27,5 +34,126 @@ double rms(int sampleSize, Buffer &audioData){
 
 	return std::sqrt(sum / (double(audioData.size() / sampleSize)));
 }
+
+Buffer record(float length, float silenceLen) {
+  // TODO: check errors
+
+  int totalSamplesToRecord = length * (float)defaultSampleRate;
+  const int CHUNK_SIZE = 512; // max number of samples to read at once
+
+  // buffer for storing recorded audio, big enough to hold all samples
+  Buffer outBuffer(totalSamplesToRecord * BYTES_PER_SAMPLE);
+
+  // initialize portaudio
+  PaError err = Pa_Initialize();
+
+  // create & configure portaudio audio stream
+  PaStream *stream;
+  err = Pa_OpenDefaultStream(&stream,
+                             1, // mono input channel
+                             0, // no output channels
+                             PORTAUDIO_SAMPLE_FORMAT,
+                             defaultSampleRate,
+                             paFramesPerBufferUnspecified,
+                             nullptr, // use blocking read instead of callback
+                             nullptr); // no userData for blocking read
+  if (err != paNoError) {
+    // clean up portaudio resources before throwing
+    Pa_Terminate();
+
+    throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(err));
+  }
+
+  // commences audio processing of stream
+  err = Pa_StartStream(stream);
+
+  // record audio in chunks
+  int progress = 0; // samples recorded so far
+  while (progress < totalSamplesToRecord) {
+    AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
+    int samplesRead = std::min(CHUNK_SIZE, totalSamplesToRecord - progress);
+    err = Pa_ReadStream(stream, buffPtr, samplesRead);
+
+    // TODO: check for silence
+
+    progress += samplesRead;
+  }
+
+  // terminates audio processing, waiting for all pending audio buffers to complete
+  err = Pa_StopStream(stream);
+
+  // close audio stream, discarding any pending buffers!
+  err = Pa_CloseStream(stream);
+
+  // clean up portaudio resources
+  Pa_Terminate();
+
+  // TODO: remove silence at beginning
+
+  // remove pop at beginning
+  // std::fill(outBuffer.begin(), outBuffer.begin() + 3000, 0);
+
+  return outBuffer;
+}
+
+// virtual sound file functions
+// implementations converted from libsndfile unit test:
+// https://github.com/erikd/libsndfile/blob/2fcf531ac940829cf350f86786fcff5160a32143/tests/virtual_io_test.c
+
+static sf_count_t vfget_filelen (void *userData) {
+  VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
+	return vf->buffer.size() ;
+}
+
+static sf_count_t vfseek (sf_count_t offset, int whence, void *userData) {
+  VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
+
+	switch (whence) {
+  case SEEK_SET:
+    vf->offset = offset ;
+    break;
+  case SEEK_CUR:
+    vf->offset = vf->offset + offset ;
+    break;
+  case SEEK_END:
+    vf->offset = vf->buffer.size() + offset ;
+		break;
+  }
+
+	return vf->offset ;
+}
+
+static sf_count_t vfread (void *ptr, sf_count_t count, void *userData) {
+  char *dst = reinterpret_cast<char*>(ptr);
+  VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
+
+  if (vf->offset + count > vf->buffer.size()) {
+    count = vf->buffer.size() - vf->offset;
+  }
+
+  std::memcpy(dst, vf->buffer.data() + vf->offset, count);
+
+  vf->offset += count;
+
+  return count;
+}
+
+static sf_count_t vfwrite (const void *ptr, sf_count_t count, void *userData) {
+  const char *src = reinterpret_cast<const char*>(ptr);
+  VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
+
+  vf->buffer.insert(vf->buffer.begin() + vf->offset, src, src + count);
+  vf->offset += count;
+
+	return count ;
+}
+
+static sf_count_t vftell (void *userData) {
+  VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
+	return vf->offset ;
+}
+
+// initialize VirtualSoundFile with virtual file function pointers
+SF_VIRTUAL_IO VirtualSoundFile = {vfget_filelen, vfseek, vfread, vfwrite, vftell};
 
 } // namespace aurora

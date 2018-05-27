@@ -7,6 +7,15 @@
 
 namespace aurora {
 
+// audio file write defaults
+const int AUDIO_FILE_FORMAT = SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+const PaSampleFormat PORTAUDIO_SAMPLE_FORMAT = paInt16; // 16 bits
+using AudioSampleType = short; // short = 2 bytes = 16 bits
+const int BITS_PER_BYTE = 8;
+const int BITS_PER_SAMPLE = sizeof(AudioSampleType) * BITS_PER_BYTE;
+const int BYTES_PER_SAMPLE = sizeof(AudioSampleType);
+
+
 /**
  * AudioFile wraps the raw WAV data and allows you
  * to operate with it using high-level operations, such as padding, trimming,

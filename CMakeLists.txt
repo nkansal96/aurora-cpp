@@ -23,7 +23,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(ENABLE_CPPCHECK "Download and build cppcheck from Github" ON)
 option(ENABLE_TESTS "Download & build googletest and run Aurora tests" ON)
-option(ENABLE_EXAMPLES "Build demo executables" OFF)
+option(ENABLE_EXAMPLES "Build demo executables" ON)
 
 # ----------------------------------------------------------------------------
 # cpr (curl wrapper) library
