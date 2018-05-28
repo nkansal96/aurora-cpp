@@ -8,6 +8,7 @@
 #include "aurora/AudioFile.h"
 #include "aurora/WAV.h"
 #include "aurora/errors/AuroraError.h"
+#include <cstring>
 
 namespace aurora {
 
@@ -142,7 +143,12 @@ static sf_count_t vfwrite (const void *ptr, sf_count_t count, void *userData) {
   const char *src = reinterpret_cast<const char*>(ptr);
   VirtualSoundFileUserData *vf = reinterpret_cast<VirtualSoundFileUserData*>(userData);
 
-  vf->buffer.insert(vf->buffer.begin() + vf->offset, src, src + count);
+  if (vf->offset + count > vf->buffer.size()) {
+    vf->buffer.resize(vf->offset + count);
+  }
+
+  std::memcpy(vf->buffer.data() + vf->offset, src, count);
+
   vf->offset += count;
 
 	return count ;

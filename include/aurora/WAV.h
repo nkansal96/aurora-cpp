@@ -25,7 +25,14 @@ public:
   virtual int getSampleRate();
   virtual int getNumChannels();
   virtual int getBitsPerSample();
-  void trimSilent(double threshold, double padding);
+  virtual int bytesPerFrame();
+  virtual void trimSilent(double threshold, double padding);
+
+  /// append the passed-in audio bytes to the raw audio data
+  virtual void appendAudioData(Buffer &b);
+
+  /// prepend the passed-in audio bytes to the raw audio data
+  virtual void prependAudioData(Buffer &b);
 
   /// returns raw audio data
   virtual Buffer& audioData();

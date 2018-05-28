@@ -4,7 +4,6 @@
 #include <sndfile.hh>
 #include <portaudio.h>
 #include <algorithm>
-#include <iostream>
 
 // disabled until portaudio bug fixed, as explained in
 // https://github.com/EddieRingle/portaudio/blob/9eb5f0b3d820a81d385504d9c54534abbeea1099/examples/paex_read_write_wire.c#L59
@@ -51,6 +50,8 @@ AudioFile::AudioFile(float length, float silenceLen) {
   m_audioData = WAV(recordBuffer, defaultNumChannels, defaultSampleRate, defaultAudioFormat, BITS_PER_SAMPLE);
 }
 
+AudioFile::AudioFile(const WAV &wav) : m_audioData(wav) {}
+
 AudioFile::~AudioFile() {}
 
 void AudioFile::writeToFile(const std::string &filename) {
@@ -63,11 +64,18 @@ void AudioFile::writeToFile(const std::string &filename) {
                    m_audioData.audioData().size() / BYTES_PER_SAMPLE);
 }
 
-void AudioFile::pad(float seconds) {}
+void AudioFile::pad(float seconds) {
+  // left and right
+  pad(seconds, true, true);
+}
 
-void AudioFile::padLeft(float seconds) {}
+void AudioFile::padLeft(float seconds) {
+  pad(seconds, true, false);
+}
 
-void AudioFile::padRight(float seconds) {}
+void AudioFile::padRight(float seconds) {
+  pad(seconds, false, true);
+}
 
 void AudioFile::trimSilence() {}
 
@@ -125,6 +133,16 @@ void AudioFile::checkPortAudioError(PaError &error) {
 
     throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(error));
   }
+}
+
+void AudioFile::pad(float seconds, bool padLeft, bool padRight) {
+  int numBytes = m_audioData.bytesPerFrame() * (int)((float)m_audioData.getSampleRate() * seconds);
+  Buffer padding(numBytes, 0);
+
+  if (padLeft)
+    m_audioData.prependAudioData(padding);
+  if (padRight)
+    m_audioData.appendAudioData(padding);
 }
 
 } // namespace aurora

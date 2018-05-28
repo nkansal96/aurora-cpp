@@ -2,7 +2,6 @@
 #include "aurora/errors/AuroraError.h"
 #include "sndfile.hh"
 #include <cmath>
-#include <iostream>
 #include "aurora/utils.h"
 #include "aurora/AudioFile.h"
 #include <memory>
@@ -29,17 +28,18 @@ WAV::WAV(Buffer &data){
 
   VirtualSoundFileUserData userData(data);
 
-  SndfileHandle fileHandle(VirtualSoundFile, &userData);
+  SndfileHandle fileHandle(VirtualSoundFile, &userData, SFM_READ);
   if (fileHandle.error() != 0) {
     throw AuroraError("LibsndfileError", "Libsndfile encountered an error in opening a virtual file", fileHandle.strError());
   }
 
-  m_audioData.resize(data.size());
-  fileHandle.read(reinterpret_cast<short*>(m_audioData.data()), data.size() / sizeof(short));
+  int numBytes = fileHandle.channels() * fileHandle.frames() * sizeof(short);
+  m_audioData.resize(numBytes);
+  fileHandle.read(reinterpret_cast<short*>(m_audioData.data()), fileHandle.channels() * fileHandle.frames());
 
   m_numChannels = fileHandle.channels();
   m_sampleRate = fileHandle.samplerate();
-  m_bitsPerSample = 16;
+  m_bitsPerSample = sizeof(short) * BITS_PER_BYTE;
   m_audioFormat = fileHandle.format();
 }
 
@@ -56,6 +56,11 @@ int WAV::getNumChannels() {
 
 int WAV::getBitsPerSample() {
   return m_bitsPerSample;
+}
+
+int WAV::bytesPerFrame() {
+  int bytesPerSample = m_bitsPerSample / 8;
+  return m_numChannels * bytesPerSample;
 }
 
 void WAV::trimSilent(double threshold, double padding) {
@@ -93,6 +98,13 @@ void WAV::trimSilent(double threshold, double padding) {
   m_audioData.erase(last, m_audioData.end());
 }
 
+void WAV::appendAudioData(Buffer &b) {
+  m_audioData.insert(m_audioData.end(), b.begin(), b.end());
+}
+
+void WAV::prependAudioData(Buffer &b) {
+  m_audioData.insert(m_audioData.begin(), b.begin(), b.end());
+}
 
 Buffer& WAV::audioData() {
   return m_audioData;
@@ -100,19 +112,25 @@ Buffer& WAV::audioData() {
 
 Buffer WAV::data() {
   VirtualSoundFileUserData userData;
-  SndfileHandle fileHandle(VirtualSoundFile,
-                           &userData,
-                           SFM_WRITE,
-                           SF_FORMAT_WAV | SF_FORMAT_PCM_16,
-                           m_numChannels,
-                           m_sampleRate);
-  if (fileHandle.error() != 0) {
-    throw AuroraError("LibsndfileError", "Libsndfile encountered an error in opening a virtual file", fileHandle.strError());
+  SndfileHandle *fileHandle = new SndfileHandle(VirtualSoundFile,
+                                                &userData,
+                                                SFM_WRITE,
+                                                SF_FORMAT_WAV | SF_FORMAT_PCM_16,
+                                                m_numChannels,
+                                                m_sampleRate);
+  if (fileHandle->error() != 0) {
+    throw AuroraError("LibsndfileError", "Libsndfile encountered an error in opening a virtual file", fileHandle->strError());
   }
 
-  // 'short' assumes bitsPerSample is 16
   int bytesPerSample = m_bitsPerSample / BITS_PER_BYTE;
-  fileHandle.write(reinterpret_cast<short*>(m_audioData.data()), m_audioData.size() / bytesPerSample);
+
+  // TODO: 'short' assumes bitsPerSample is 16, make more flexible
+  int numItems = m_audioData.size() / bytesPerSample;
+
+  fileHandle->write(reinterpret_cast<short*>(m_audioData.data()), numItems);
+
+  // need to call SndFileHandle destructor to close file
+  delete fileHandle;
 
   return userData.buffer;
 }

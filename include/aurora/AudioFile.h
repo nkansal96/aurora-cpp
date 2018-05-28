@@ -27,6 +27,8 @@ public:
   explicit AudioFile(Buffer &b);
   /// ceate an AudioFile by specifying the file name
   explicit AudioFile(const std::string &filename);
+  /// construct an audio file from a WAV object
+  explicit AudioFile(const WAV &wav);
   /**
    * Create a new audio file by recording from the default input
    * @param length specifies the length of the recording in seconds
@@ -65,6 +67,14 @@ private:
   WAV m_audioData;
 
   void checkPortAudioError(PaError &error);
+
+  /**
+   * pad audio with silence (on left, right, or both)
+   * @param seconds seconds of silence to pad with
+   * @param padLeft if true, prepend padding
+   * @param padright if true, append padding
+   */
+  void pad(float seconds, bool padLeft, bool padRight);
 };
 
 } // namespace aurora
