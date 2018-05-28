@@ -41,3 +41,11 @@ add_executable(tts_example
 target_link_libraries(tts_example
   aurora)
 
+#----------------------------------------
+# AudioFile example
+#---------------------------------------
+add_executable(audiofile_example
+  audiofile_example.cpp
+  exampleutils.cpp)
+target_link_libraries(audiofile_example
+  aurora)

@@ -1,3 +1,6 @@
+# preprocessor variable for getting asset path in examples
+add_definitions("-DTESTS_ASSETS_PATH=\"${CMAKE_SOURCE_DIR}/tests/assets/\"")
+
 macro(test_macro test_name)
   add_executable(test_${test_name}
     test_${test_name}.cpp)
