@@ -10,6 +10,10 @@
 #define CHECK_OVERFLOW  (0)
 #define CHECK_UNDERFLOW (0)
 
+// TODO: calibrate constants
+const double SILENCE_THRESHOLD = 0.03;
+const double SILENCE_PADDING = 0.25;
+
 namespace aurora {
 
 AudioFile::AudioFile(Buffer &b) : m_audioData(b) {}
@@ -77,7 +81,9 @@ void AudioFile::padRight(float seconds) {
   pad(seconds, false, true);
 }
 
-void AudioFile::trimSilence() {}
+void AudioFile::trimSilence() {
+  m_audioData.trimSilent(SILENCE_THRESHOLD, SILENCE_PADDING);
+}
 
 void AudioFile::play() {
   // initialize portaudio
