@@ -40,6 +40,16 @@ add_executable(tts_example
   exampleutils.cpp)
 target_link_libraries(tts_example
   aurora)
+#----------------------------------------
+# listenAndTranscribe example
+#---------------------------------------
+add_executable(listen_and_transcribe_example
+  listen_and_transcribe_example.cpp
+  exampleutils.cpp)
+target_link_libraries(listen_and_transcribe_example
+  aurora)
+
+
 
 #----------------------------------------
 # AudioFile example

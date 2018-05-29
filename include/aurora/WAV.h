@@ -38,7 +38,7 @@ public:
   virtual Buffer& audioData();
 
   /// returns a fully formatted WAV file (headers + raw audio data)
-  virtual Buffer data();
+  virtual Buffer data() const;
 private:
   uint16_t m_numChannels;
   uint32_t m_sampleRate;

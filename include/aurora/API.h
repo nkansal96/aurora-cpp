@@ -1,6 +1,7 @@
 #ifndef AURORA_API_H
 #define AURORA_API_H
 
+#include "utils.h"
 #include <string>
 #include <unordered_map>
 
@@ -33,13 +34,18 @@ public:
    * getSTT queries the API with the provided audio file and returns
    * a transcript of the speech.
    */
-  static std::string getSTT(AudioFile &file);
+  static std::string getSTT(const AudioFile &file);
 
+  /**
+   * getSTT queries the API with the provide byte buffer from an audio file
+   * and returns a transcript of the speech
+   */
+  static std::string getSTTFromBuffer(const Buffer &buffer);
   /**
    * getTTS calls the TTS API given some text and returns an AudioFile
    * with the audio from converting the text to speech.
    */
-  static AudioFile getTTS(const std::string &text);
+   static AudioFile getTTS(const std::string &text);
 
   /**
    * queries the API with the provided text and returns the interpreted response

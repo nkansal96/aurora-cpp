@@ -122,7 +122,7 @@ void AudioFile::play() {
   Pa_Terminate();
 }
 
-Buffer AudioFile::getWAVData() {
+Buffer AudioFile::getWAVData() const {
   return m_audioData.data();
 }
 

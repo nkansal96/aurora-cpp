@@ -62,7 +62,7 @@ public:
 
   /// returns the full WAV file data (headers + raw audio) contained in the audio file
   // TODO: return a reference
-  virtual Buffer getWAVData();
+  virtual Buffer getWAVData() const;
 private:
   WAV m_audioData;
 
