@@ -5,6 +5,7 @@
 #include "aurora/utils.h"
 #include "aurora/AudioFile.h"
 #include <memory>
+#include <iostream>
 
 namespace aurora {
 
@@ -65,7 +66,7 @@ int WAV::bytesPerFrame() {
 
 void WAV::trimSilent(double threshold, double padding) {
   int sampleSize = m_numChannels * (m_bitsPerSample/8);
-  int step = 1024;
+  int step = 10;
   double max_amplitude = std::pow(2.0, double(m_bitsPerSample)) / 2.0;
   double silence_threshold = threshold * max_amplitude;
 
@@ -87,15 +88,31 @@ void WAV::trimSilent(double threshold, double padding) {
     std::vector<char> subVec(first, last);
     double sampleRMS = rms(sampleSize, subVec);
     if (sampleRMS > silence_threshold) break;
-    n1 -= sampleSize * step;
+    n2 -= sampleSize * step;
   }
 
   //trim, taking padding into account
   int paddingSize = int(padding * m_sampleRate * sampleSize);
   std::vector<char>::const_iterator first = m_audioData.begin() + n1 - paddingSize;
-  m_audioData.erase(m_audioData.begin(), first);
+
+  //if entire vector is silent
+  if(first == m_audioData.end()) {
+    m_audioData.erase(m_audioData.begin(), m_audioData.end());
+    return;
+  }
+  else{
+    m_audioData.erase(m_audioData.begin(), first);
+  }
   std::vector<char>::const_iterator last = m_audioData.end() - n2 + paddingSize;
-  m_audioData.erase(last, m_audioData.end());
+  //if entire vector is silent
+  if(last == m_audioData.begin()) {
+    m_audioData.erase(m_audioData.begin(), m_audioData.end());
+    return;
+  }
+  else{
+    m_audioData.erase(last, m_audioData.end());
+  }
+
 }
 
 void WAV::appendAudioData(Buffer &b) {
