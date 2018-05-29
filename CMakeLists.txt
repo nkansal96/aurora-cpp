@@ -12,7 +12,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # third party code download/installation location
-set(THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party)
+set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/third_party)
 
 # generate compile_commands.json so editors know header search paths
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
