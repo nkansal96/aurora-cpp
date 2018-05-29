@@ -39,6 +39,8 @@ template<typename T> void read_uint_from_littleendian(T &number, char* bytes){
 //translated from https://github.com/auroraapi/aurora-go/blob/c1aa007a72c1eb02b3cb2b85dfe164162157d32b/audio/utils.go
 double rms(int sampleSize, Buffer &audioData);
 
+bool isSilent(Buffer &b);
+
 // virtual file handlers
 // http://www.mega-nerd.com/libsndfile/api.html#open_virtual
 /// used for *user_data field of all virtual sound file calls
