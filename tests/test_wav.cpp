@@ -37,23 +37,22 @@ TEST(WAVtests, RawAudioConstructor) {
   EXPECT_EQ(to_test.audioData(), buf);
 }
 
-TEST(WAVtests, WavFromFormattedFile) {
-  Buffer buf;
+TEST(WAVtests, FormattedAudioConstructor) {
+  Buffer raw_buf;
   for(char i=0; i<100; i++){
-    buf.push_back(i);
+    raw_buf.push_back(i);
   }
-  buf.push_back('R');
-  buf.push_back('I');
-  buf.push_back('F');
-  buf.push_back('F');
-  for(char i=0; i<100; i++){
-    buf.push_back(i);
-  }
+  WAV RawAudioWav(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  Buffer formatted_buf = RawAudioWav.data();
+  WAV FormattedAudioWav(formatted_buf);
 
-  WAV to_test(buf);
+  EXPECT_EQ(RawAudioWav.getSampleRate(), FormattedAudioWav.getSampleRate());
+  EXPECT_EQ(RawAudioWav.getNumChannels(), FormattedAudioWav.getNumChannels());
+  EXPECT_EQ(RawAudioWav.data(), FormattedAudioWav.data());
+
 }
 
-//eventually make the wav array longer so the buffer is bigger -- tests data 5-7
+//eventually make the wav array longer so the buffer is bigger, to test the values stored in data[5]- data[7]
 TEST(WAVtests, DataTest) {
   int data_len = 100;
   Buffer buf;
