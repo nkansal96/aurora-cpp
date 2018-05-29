@@ -1,5 +1,5 @@
 # preprocessor variable for getting asset path in examples
-add_definitions("-DTESTS_ASSETS_PATH=\"${CMAKE_SOURCE_DIR}/tests/assets/\"")
+add_definitions("-DTESTS_ASSETS_PATH=\"${PROJECT_SOURCE_DIR}/tests/assets/\"")
 
 macro(test_macro test_name)
   add_executable(test_${test_name}
@@ -37,12 +37,6 @@ test_macro(speech)
 # WAV test target
 # ----------------------------------------------------------------------------
 test_macro(wav)
-
-# ----------------------------------------------------------------------------
-# UTILS test target
-# ----------------------------------------------------------------------------
-test_macro(utils)
-
 
 # ----------------------------------------------------------------------------
 # AudioFile test target
