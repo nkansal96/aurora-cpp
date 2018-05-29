@@ -91,10 +91,12 @@ void WAV::trimSilent(double threshold, double padding) {
     n2 -= sampleSize * step;
   }
 
+  int beginning_of_end_silence = m_audioData.size() - n2;
+
   //trim, taking padding into account
   int paddingSize = int(padding * m_sampleRate * sampleSize);
-  std::vector<char>::const_iterator first = m_audioData.begin() + n1 - paddingSize;
 
+  std::vector<char>::const_iterator first = m_audioData.begin() + (n1 - paddingSize);
   //if entire vector is silent
   if(first == m_audioData.end()) {
     m_audioData.erase(m_audioData.begin(), m_audioData.end());
@@ -103,7 +105,9 @@ void WAV::trimSilent(double threshold, double padding) {
   else{
     m_audioData.erase(m_audioData.begin(), first);
   }
-  std::vector<char>::const_iterator last = m_audioData.end() - n2 + paddingSize;
+
+  std::vector<char>::const_iterator last = m_audioData.end() - (beginning_of_end_silence + paddingSize);
+
   //if entire vector is silent
   if(last == m_audioData.begin()) {
     m_audioData.erase(m_audioData.begin(), m_audioData.end());

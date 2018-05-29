@@ -115,16 +115,22 @@ TEST(WAVtests, DataTest) {
 
 TEST(WAVtests, trimSilent){
   Buffer raw_buf;
-  for(char i=0; i<100; i++){
+  for(int i=0; i<2000; i++){
     raw_buf.push_back(0);
   }
-  for(char i=0; i<100; i++){
+  for(int i=0; i<2000; i++){
     raw_buf.push_back(127);
   }
 
-  WAV to_test(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
-  to_test.trimSilent(1, 0);
-//  std::cout << to_test.audioData().size() << std::endl;
+  WAV test1(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  test1.trimSilent(1, 0);
+  EXPECT_EQ(test1.audioData().size(), 0);
+
+  WAV test2(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  test2.trimSilent(0.5, 0);
+  EXPECT_GT(4000, test2.audioData().size());
+  EXPECT_GT(test2.audioData().size(), 0);
+
 }
 
 }  // namespace
