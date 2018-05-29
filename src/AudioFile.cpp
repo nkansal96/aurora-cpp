@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "aurora/AudioFile.h"
 #include "aurora/errors/AuroraError.h"
 #include "portaudio.h"
@@ -10,11 +11,15 @@
 #define CHECK_OVERFLOW  (0)
 #define CHECK_UNDERFLOW (0)
 
+// TODO: calibrate constants
+const double SILENCE_THRESHOLD = 0.03;
+const double SILENCE_PADDING = 0.25;
+
 namespace aurora {
 
-AudioFile::AudioFile(Buffer &b) : m_audioData(b) {}
+AudioFile::AudioFile(Buffer &b) : m_audioData(b), m_playing(false), m_shouldStop(false) {}
 
-AudioFile::AudioFile(const std::string &filename) {
+AudioFile::AudioFile(const std::string &filename) : m_playing(false), m_shouldStop(false) {
   SndfileHandle fileHandle(filename);
   if (fileHandle.error() != 0) {
     throw AuroraError("LibsndfileError", "Libsndfile encountered an error in opening a file", fileHandle.strError());
@@ -45,12 +50,12 @@ AudioFile::AudioFile(const std::string &filename) {
   m_audioData = WAV(fileBuffer, fileHandle.channels(), fileHandle.samplerate(), fileHandle.format(), BITS_PER_SAMPLE);
 }
 
-AudioFile::AudioFile(float length, float silenceLen) {
+AudioFile::AudioFile(float length, float silenceLen) : m_playing(false), m_shouldStop(false) {
   Buffer recordBuffer = record(length, silenceLen);
   m_audioData = WAV(recordBuffer, defaultNumChannels, defaultSampleRate, defaultAudioFormat, BITS_PER_SAMPLE);
 }
 
-AudioFile::AudioFile(const WAV &wav) : m_audioData(wav) {}
+AudioFile::AudioFile(const WAV &wav) : m_audioData(wav), m_playing(false), m_shouldStop(false) {}
 
 AudioFile::~AudioFile() {}
 
@@ -77,7 +82,9 @@ void AudioFile::padRight(float seconds) {
   pad(seconds, false, true);
 }
 
-void AudioFile::trimSilence() {}
+void AudioFile::trimSilence() {
+  m_audioData.trimSilent(SILENCE_THRESHOLD, SILENCE_PADDING);
+}
 
 void AudioFile::play() {
   // initialize portaudio
@@ -102,12 +109,22 @@ void AudioFile::play() {
   err = Pa_StartStream(stream);
   checkPortAudioError(err);
 
-  // tell portaudio to play audio buffer
-  int bytesPerSample = m_audioData.getBitsPerSample() / BITS_PER_BYTE;
+
   Buffer &audioBuffer = m_audioData.audioData();
-  err = Pa_WriteStream(stream, audioBuffer.data(), audioBuffer.size()/(bytesPerSample * numChannels));
-  if (CHECK_UNDERFLOW) {
-    checkPortAudioError(err);
+
+  int bytesPerFrame = m_audioData.bytesPerFrame();
+  int framesPerChunk = 1024;
+  int step = framesPerChunk * bytesPerFrame;
+  m_playing = true;
+  for (int offset = 0; offset < audioBuffer.size(); offset += step) {
+    if (m_shouldStop) {
+      m_shouldStop = false;
+      break;
+    }
+
+    // don't write bytes from past the end of the buffer if chunk is too big
+    int numFrames = std::min(((int)audioBuffer.size() - offset)/bytesPerFrame, framesPerChunk);
+    err = Pa_WriteStream(stream, audioBuffer.data() + offset, numFrames);
   }
 
   // terminates audio processing, waiting for all pending audio buffers to complete
@@ -120,6 +137,14 @@ void AudioFile::play() {
 
   // clean up portaudio resources
   Pa_Terminate();
+
+  m_playing = false;
+}
+
+void AudioFile::stop() {
+  if (m_playing) {
+    m_shouldStop = true;
+  }
 }
 
 Buffer AudioFile::getWAVData() const {
@@ -130,6 +155,8 @@ void AudioFile::checkPortAudioError(PaError &error) {
   if (error != paNoError) {
     // clean up portaudio resources before throwing
     Pa_Terminate();
+
+    m_playing = false;
 
     throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(error));
   }

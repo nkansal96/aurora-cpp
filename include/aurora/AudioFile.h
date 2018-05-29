@@ -57,14 +57,19 @@ public:
   /// trim silence from both ends of the audio file
   virtual void trimSilence();
 
-  /// stop the audio playback immediately
+  /// play the audio
   virtual void play();
+
+  /// stop the audio playback immediately
+  virtual void stop();
 
   /// returns the full WAV file data (headers + raw audio) contained in the audio file
   // TODO: return a reference
   virtual Buffer getWAVData() const;
 private:
   WAV m_audioData;
+  bool m_shouldStop;
+  bool m_playing;
 
   void checkPortAudioError(PaError &error);
 
