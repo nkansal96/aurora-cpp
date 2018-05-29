@@ -14,7 +14,11 @@ const int defaultAudioFormat = 1;
 /// DefaultBitsPerSample is 16 (2 bytes per sample).
 const int defaultBitsPerSample = 16;
 
-
+/**
+ * WAV represents a PCM audio file in the WAV container format. It keeps
+ * a high-level description of the parameters of the file, along with the
+ * raw audio bytes, until it needs to be written to a file, stream, or array.
+ */
 class WAV {
 public:
   WAV();

@@ -10,6 +10,8 @@ namespace aurora {
 class Backend;
 struct Credentials;
 
+
+/// configuration structure for setting API authentication keys
 class Config {
 public:
   Config();

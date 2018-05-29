@@ -7,6 +7,8 @@
 
 namespace aurora {
 
+
+// structure representing an interpreted text response from the API (intent & entities)
 class Interpret {
 public:
   explicit Interpret(InterpretResponse &res) : intent(res.intent), entities(res.entities) {}
