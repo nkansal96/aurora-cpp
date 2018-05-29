@@ -11,6 +11,7 @@
 #include <cstring>
 
 namespace aurora {
+const uint16_t SILENT_THRESH = 1 << 10;
 
 uint16_t littleendian_to_uint(char first, char second){
 	uint16_t res = uint16_t(first) | (uint16_t(second) << 8);
@@ -34,6 +35,18 @@ double rms(int sampleSize, Buffer &audioData){
 	}
 
 	return std::sqrt(sum / (double(audioData.size() / sampleSize)));
+}
+
+bool isSilent(Buffer &b) {
+  int len = b.size()/sizeof(uint16_t);
+  uint16_t *intBuff = reinterpret_cast<uint16_t*>(b.data());
+  uint16_t maxSoFar = 0;
+  for (int i = 0; i < len; i++) {
+    uint16_t val = intBuff[i];
+    maxSoFar = std::max(val, maxSoFar);
+  }
+
+  return maxSoFar < SILENT_THRESH;
 }
 
 Buffer record(float length, float silenceLen) {
@@ -76,6 +89,8 @@ Buffer record(float length, float silenceLen) {
     err = Pa_ReadStream(stream, buffPtr, samplesRead);
 
     // TODO: check for silence
+    
+
 
     progress += samplesRead;
   }
