@@ -2,14 +2,8 @@
 #include <gmock/gmock.h>
 #include <aurora/WAV.h>
 #include <aurora/errors/AuroraError.h>
-#include <aurora/utils.h>
-#include <memory>
 #include <vector>
 #include <cinttypes>
-
-
-// mocks
-#include "mocks/mock_backend.h"
 
 using namespace aurora;
 using namespace testing;
@@ -117,6 +111,20 @@ TEST(WAVtests, DataTest) {
   EXPECT_EQ(uint8_t(data[42]), uint8_t(0));
   EXPECT_EQ(uint8_t(data[43]), uint8_t(0));
 
+}
+
+TEST(WAVtests, trimSilent){
+  Buffer raw_buf;
+  for(char i=0; i<100; i++){
+    raw_buf.push_back(0);
+  }
+  for(char i=0; i<100; i++){
+    raw_buf.push_back(127);
+  }
+
+  WAV to_test(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  to_test.trimSilent(1, 0);
+//  std::cout << to_test.audioData().size() << std::endl;
 }
 
 }  // namespace
