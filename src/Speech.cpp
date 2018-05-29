@@ -1,3 +1,4 @@
+#include "aurora/utils.h"
 #include "aurora/Speech.h"
 #include "aurora/Text.h"
 #include "aurora/API.h"
@@ -29,9 +30,8 @@ void continuouslyListen(const ListenParams &params, SpeechHandleFunc callback) {
 }
 
 Text listenAndTranscribe(const ListenParams &params) {
-  // TODO
-
-  return Text("");
+  Buffer recordBuffer = record(params.length, params.silenceLen);
+  return Text(API::getSTTFromBuffer(recordBuffer));
 }
 
 void continuouslyListenAndTranscribe(const ListenParams &params, TextHandleFunc callback) {

@@ -18,31 +18,35 @@ const int STATUS_CODE_OK = 200;
 
 namespace aurora {
 
-std::string API::getSTT(AudioFile &file) {
-  // set up API call params
-  CallParams params;
-  params.method = POST;
-  params.path = STT_PATH;
-  params.credentials = config.getCredentials();
-  params.body = file.getWAVData();
-
-  // request text from API server
-  HTTPResponse httpRes = config.backend->call(params);
-
-  // check if there were api errors
-  API::checkStatus(httpRes);
-
-  // convert response body to json object
-  json j = json::parse(httpRes.response);
-
-  // extract transcript field value
-  if (j.find("transcript") == j.end()) {
-    throw AuroraError("MissingTranscriptField", "No 'transcript' field found in stt response object", "API::getSTT");
+  std::string API::getSTT(const AudioFile &file) {
+    return getSTTFromBuffer(file.getWAVData());
   }
 
-  return j["transcript"];
-}
+  std::string API::getSTTFromBuffer(const Buffer &audio) {
+    // set up API call params                                                                                 
+    CallParams params;
+    params.method = POST;
+    params.path = STT_PATH;
+    params.credentials = config.getCredentials();
+    params.body = audio;
 
+    // request text from API server                                                                           
+    HTTPResponse httpRes = config.backend->call(params);
+
+    // check if there were api errors                                                                         
+    API::checkStatus(httpRes);
+
+    // convert response body to json object                                                                   
+    json j = json::parse(httpRes.response);
+
+    // extract transcript field value                                                                         
+    if (j.find("transcript") == j.end()) {
+      throw AuroraError("MissingTranscriptField", "No 'transcript' field found in stt response object", "API:\
+:getSTT");
+    }
+
+    return j["transcript"];
+  }
 
 AudioFile API::getTTS(const std::string &text) {
   // set up API call params

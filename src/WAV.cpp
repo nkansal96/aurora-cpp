@@ -110,7 +110,7 @@ Buffer& WAV::audioData() {
   return m_audioData;
 }
 
-Buffer WAV::data() {
+Buffer WAV::data() const {
   VirtualSoundFileUserData userData;
   SndfileHandle *fileHandle = new SndfileHandle(VirtualSoundFile,
                                                 &userData,
@@ -127,7 +127,7 @@ Buffer WAV::data() {
   // TODO: 'short' assumes bitsPerSample is 16, make more flexible
   int numItems = m_audioData.size() / bytesPerSample;
 
-  fileHandle->write(reinterpret_cast<short*>(m_audioData.data()), numItems);
+  fileHandle->write(reinterpret_cast<const short*>(m_audioData.data()), numItems);
 
   // need to call SndFileHandle destructor to close file
   delete fileHandle;

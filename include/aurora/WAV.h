@@ -25,7 +25,11 @@ public:
   virtual int getSampleRate();
   virtual int getNumChannels();
   virtual int getBitsPerSample();
+
+  /// calculates bytes used per frame of WAV audio data (channels * sample size)
   virtual int bytesPerFrame();
+
+  /// trims silence from both ends of the audio data
   virtual void trimSilent(double threshold, double padding);
 
   /// append the passed-in audio bytes to the raw audio data
@@ -38,7 +42,7 @@ public:
   virtual Buffer& audioData();
 
   /// returns a fully formatted WAV file (headers + raw audio data)
-  virtual Buffer data();
+  virtual Buffer data() const;
 private:
   uint16_t m_numChannels;
   uint32_t m_sampleRate;
