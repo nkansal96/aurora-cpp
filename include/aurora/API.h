@@ -28,6 +28,7 @@ struct InterpretResponse {
   std::unordered_map<std::string, std::string> entities;
 };
 
+/// contains static methods for forming HTTP requests for all API endpoints
 class API {
 public:
   /**

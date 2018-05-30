@@ -29,13 +29,12 @@ macro(fetch_libsndfile _download_module_path _download_root)
   set(BUILD_PROGRAMS OFF CACHE INTERNAL "don't build libsndfile utils")
   set(BUILD_TESTING OFF CACHE INTERNAL "don't build tests")
   set(BUILD_EXAMPLES OFF CACHE INTERNAL "don't build examples")
-
+  set(BUILD_REGTEST OFF CACHE INTERNAL "don't build regtest program")
 
   # adds the target 'libsndfile'
   add_subdirectory(
     ${_download_root}/libsndfile-src
     ${_download_root}/libsndfile-build
     )
-
 
 endmacro()

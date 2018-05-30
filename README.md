@@ -11,7 +11,17 @@ The SDK is currently in development. Bugs and limited functionality should be ex
 
 **The required C++ version is C++11**
 
+This repository creates an `aurora` CMake library target that can be linked to your executables. This will download dependencies and add aurora's header search paths to your target.
 
+```cmake
+add_subdirectory(lib/aurora)
+add_executable(example_program
+  example_program.cpp)
+target_link_libraries(example_program
+  aurora)
+```
+
+Alternatively, you can build the aurora static library with `cmake .` and `make` and the static library will be generated in `lib/libaurora.a`. You can link this library to your project or move it in your system's library directory.
 
 ## Basic Usage
 
@@ -31,10 +41,10 @@ int main(int argc, char **argv) {
   aurora::Speech speech = aurora::Text("Hello World").speech();
   
   // Play the resulting audio...
-  speech.audio.play();
+  speech.getAudio().play();
   
   // ... or save it into a file
-  speech.audio.writeToFile("test.wav");
+  speech.getAudio().writeToFile("test.wav");
 }
 ```
 
@@ -235,7 +245,7 @@ bool listenCallback(aurora::Text &text) {
   aurora::Speech speech = text.speech();
 
   // Speak
-  speech.audio.play();
+  speech.getAudio().play();
 
   // continue listening
   return true;
@@ -362,16 +372,17 @@ int main(int argc, char **argv) {
 }
 ```
 
+## Example Trivia Game Project
+In addition to small example programs found in the [examples/](https://github.com/nkansal96/aurora-cpp/tree/master/examples) directory, we developed a [proof of concept voice-controlled trivia game](https://github.com/nkansal96/aurora-trivia-game) that shows how to use this library.
 
-
-# Development
+## Development
 Aurora uses cmake to build the Aurora library, build and run tests, and manage dependencies. To configure the project and download dependencies, run `cmake .` in the root directory of the project.
 
-## Generating Documentation
+### Generating Documentation
 Aurora uses Doxygen to generate documentation. To generate documentation, you must have Doxygen installed. Then run `make doc`. Documentation will be generated in the `/docs` directory.
 
-## Testing
+### Testing
 Aurora uses googletest to create and run tests. After building all tests with `make`, you can run all tests with `make test`.
 
-## Static Analysis Checking
+### Static Analysis Checking
 To prevent errors and improve performance, Aurora uses cppcheck to analyze all code for deficiencies. CPPCheck is automatically invoked on every build with `make`, and it can be explicityl invoked with `make cppcheck`. CMake handles downloading and building cppcheck during the configuration stage.
