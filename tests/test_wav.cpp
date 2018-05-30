@@ -121,6 +121,9 @@ TEST(WAVtests, trimSilent){
   for(int i=0; i<2000; i++){
     raw_buf.push_back(127);
   }
+  for(int i=0; i<2000; i++){
+    raw_buf.push_back(0);
+  }
 
   WAV test1(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
   test1.trimSilent(1, 0);
@@ -130,6 +133,28 @@ TEST(WAVtests, trimSilent){
   test2.trimSilent(0.5, 0);
   EXPECT_GT(4000, test2.audioData().size());
   EXPECT_GT(test2.audioData().size(), 0);
+
+  //check what happens when padding is too big. before fix, this would lead to infinite looping
+  WAV test3(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  test3.trimSilent(0.5, 0.25);
+  EXPECT_EQ(6000, test3.audioData().size());
+
+  //realistic use of trimSilent
+  raw_buf.clear();
+  for(int i=0; i<10000; i++){
+    raw_buf.push_back(0);
+  }
+  for(int i=0; i<2000; i++){
+    raw_buf.push_back(127);
+  }
+  for(int i=0; i<10000; i++){
+    raw_buf.push_back(0);
+  }
+
+  WAV test4(raw_buf, defaultNumChannels, defaultSampleRate, defaultAudioFormat, defaultBitsPerSample);
+  test4.trimSilent(0.03, 0.25);
+  EXPECT_GT(4000, test4.audioData().size());
+  EXPECT_GT(test4.audioData().size(), 0);
 
 }
 

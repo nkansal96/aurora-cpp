@@ -96,27 +96,31 @@ void WAV::trimSilent(double threshold, double padding) {
   //trim, taking padding into account
   int paddingSize = int(padding * m_sampleRate * sampleSize);
 
-  std::vector<char>::const_iterator first = m_audioData.begin() + (n1 - paddingSize);
-  //if entire vector is silent
-  if(first == m_audioData.end()) {
-    m_audioData.erase(m_audioData.begin(), m_audioData.end());
-    return;
-  }
-  else{
-    m_audioData.erase(m_audioData.begin(), first);
-  }
-
-  std::vector<char>::const_iterator last = m_audioData.end() - (beginning_of_end_silence + paddingSize);
-
-  //if entire vector is silent
-  if(last == m_audioData.begin()) {
-    m_audioData.erase(m_audioData.begin(), m_audioData.end());
-    return;
-  }
-  else{
-    m_audioData.erase(last, m_audioData.end());
+  //if the padding is bigger than the amount we want to trim, don't do anything (otherwise you invalidate the first iterator and bad stuff happens)
+  if(n1 > paddingSize){
+    std::vector<char>::const_iterator first = m_audioData.begin() + (n1 - paddingSize);
+    //if entire vector is silent
+    if(first == m_audioData.end()) {
+      m_audioData.erase(m_audioData.begin(), m_audioData.end());
+      return;
+    }
+    else{
+      m_audioData.erase(m_audioData.begin(), first);
+    }
   }
 
+  if(n2 > paddingSize){
+    std::vector<char>::const_iterator last = m_audioData.end() - (beginning_of_end_silence + paddingSize);
+
+    //if entire vector is silent
+    if(last == m_audioData.begin()) {
+      m_audioData.erase(m_audioData.begin(), m_audioData.end());
+      return;
+    }
+    else{
+      m_audioData.erase(last, m_audioData.end());
+    }
+  }
 }
 
 void WAV::appendAudioData(Buffer &b) {
