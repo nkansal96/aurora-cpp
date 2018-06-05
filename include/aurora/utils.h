@@ -36,7 +36,8 @@ double rms(int sampleSize, Buffer &audioData);
 
 /// checks if all samples in buffer are below the silence threshold
 bool isSilent(Buffer &b);
-
+//check if certain sample segments are below silence threshold (note indexes correspond to chunks in Buffer)
+ bool isSilent(Buffer &b, size_t beginningIndex, size_t endingIndex);
 // virtual file handlers
 // http://www.mega-nerd.com/libsndfile/api.html#open_virtual
 /// used for *user_data field of all virtual sound file calls

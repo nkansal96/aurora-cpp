@@ -6,13 +6,13 @@
 namespace aurora {
 
 /// DefaultNumChannels is 1 (mono audio)
-const int defaultNumChannels = 1;
+const uint16_t defaultNumChannels = 1;
 /// DefaultSampleRate is 16KHz
-const int defaultSampleRate = 16000;
+const uint32_t defaultSampleRate = 16000;
 /// DefaultAudioFormat is 1 (raw, uncompressed PCM waveforms)
-const int defaultAudioFormat = 1;
+const uint16_t defaultAudioFormat = 1;
 /// DefaultBitsPerSample is 16 (2 bytes per sample).
-const int defaultBitsPerSample = 16;
+const uint16_t defaultBitsPerSample = 16;
 
 /**
  * WAV represents a PCM audio file in the WAV container format. It keeps

@@ -11,7 +11,7 @@
 #include <cstring>
 
 namespace aurora {
-const uint16_t SILENT_THRESH = 1 << 10;
+const int16_t SILENT_THRESH = 1 << 11;
 
 uint16_t littleendian_to_uint(char first, char second){
 	uint16_t res = uint16_t(first) | (uint16_t(second) << 8);
@@ -38,14 +38,19 @@ double rms(int sampleSize, Buffer &audioData){
 }
 
 bool isSilent(Buffer &b) {
-  int len = b.size()/sizeof(uint16_t);
-  uint16_t *intBuff = reinterpret_cast<uint16_t*>(b.data());
-  uint16_t maxSoFar = 0;
-  for (int i = 0; i < len; i++) {
-    uint16_t val = intBuff[i];
+  return isSilent(b, 0, b.size());
+}
+bool isSilent(Buffer &b, size_t beginningIndex, size_t endingIndex) {  
+  int start = std::max((size_t)0, beginningIndex)/sizeof(int16_t);
+  int end = std::min(b.size(), endingIndex)/sizeof(int16_t);
+  
+  int16_t *intBuff = reinterpret_cast<int16_t*>(b.data());
+  int16_t maxSoFar = 0;
+  for (int i = start; i < end; i++) {
+    int16_t val = intBuff[i];
     maxSoFar = std::max(val, maxSoFar);
   }
-
+  
   return maxSoFar < SILENT_THRESH;
 }
 
@@ -61,6 +66,9 @@ Buffer record(float length, float silenceLen) {
   // initialize portaudio
   PaError err = Pa_Initialize();
 
+  
+  bool soundDetected = false;
+  
   // create & configure portaudio audio stream
   PaStream *stream;
   err = Pa_OpenDefaultStream(&stream,
@@ -87,10 +95,15 @@ Buffer record(float length, float silenceLen) {
     AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
     int samplesRead = std::min(CHUNK_SIZE, totalSamplesToRecord - progress);
     err = Pa_ReadStream(stream, buffPtr, samplesRead);
-
-    // TODO: check for silence
     
-
+    //if sound hasn't been detected, then check for silence. If silent, wait for sound
+    if (!soundDetected) {
+      if (isSilent(outBuffer, 0, progress + samplesRead)) {
+	continue;
+      } else {
+	soundDetected = true;
+      }
+    }
 
     progress += samplesRead;
   }
