@@ -11,7 +11,7 @@
 #include <cstring>
 
 namespace aurora {
-const int16_t SILENT_THRESH = 1 << 11;
+const int16_t SILENT_THRESH = 1 << 10;
 
 uint16_t littleendian_to_uint(char first, char second){
 	uint16_t res = uint16_t(first) | (uint16_t(second) << 8);
@@ -50,14 +50,16 @@ bool isSilent(Buffer &b, size_t beginningIndex, size_t endingIndex) {
     int16_t val = intBuff[i];
     maxSoFar = std::max(val, maxSoFar);
   }
-  
   return maxSoFar < SILENT_THRESH;
 }
 
 Buffer record(float length, float silenceLen) {
   // TODO: check errors
-
+  bool silenceCutoffEnabled = true;
+  if(silenceLen == 0.0)
+    silenceCutoffEnabled = false;
   int totalSamplesToRecord = length * (float)defaultSampleRate;
+  int maxSilencePeriod = silenceLen * (float)defaultSampleRate;
   const int CHUNK_SIZE = 512; // max number of samples to read at once
 
   // buffer for storing recorded audio, big enough to hold all samples
@@ -91,10 +93,15 @@ Buffer record(float length, float silenceLen) {
 
   // record audio in chunks
   int progress = 0; // samples recorded so far
+  int silentPeriod = 0; // number of continous silent samples
   while (progress < totalSamplesToRecord) {
     AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
     int samplesRead = std::min(CHUNK_SIZE, totalSamplesToRecord - progress);
     err = Pa_ReadStream(stream, buffPtr, samplesRead);
+    
+    //take out beginning pop when port audio starts
+    for(int i = 0; i < 10; i++)
+      continue;
     
     //if sound hasn't been detected, then check for silence. If silent, wait for sound
     if (!soundDetected) {
@@ -105,7 +112,18 @@ Buffer record(float length, float silenceLen) {
       }
     }
 
-    progress += samplesRead;
+   
+    
+    if(soundDetected && silenceCutoffEnabled) {
+      if(isSilent(outBuffer, progress, progress+samplesRead)) {
+	silentPeriod+= samplesRead;
+	if(silentPeriod >= maxSilencePeriod)
+	  break;
+      } else {
+	silentPeriod = 0;
+      }
+    }
+     progress += samplesRead;
   }
 
   // terminates audio processing, waiting for all pending audio buffers to complete
@@ -121,7 +139,7 @@ Buffer record(float length, float silenceLen) {
 
   // remove pop at beginning
   // std::fill(outBuffer.begin(), outBuffer.begin() + 3000, 0);
-
+  outBuffer.resize(progress);
   return outBuffer;
 }
 
