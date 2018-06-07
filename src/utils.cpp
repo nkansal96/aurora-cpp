@@ -10,7 +10,6 @@
 #include "aurora/errors/AuroraError.h"
 #include <cstring>
 
-
 namespace aurora {
 const int16_t SILENT_THRESH = 1 << 10;
 
@@ -51,7 +50,6 @@ bool isSilent(Buffer &b, size_t beginningIndex, size_t endingIndex) {
     int16_t val = intBuff[i];
     maxSoFar = std::max(val, maxSoFar);
   }
-  
   return maxSoFar < SILENT_THRESH;
 }
 
@@ -139,7 +137,7 @@ Buffer record(float length, float silenceLen) {
 
   // remove pop at beginning
   // std::fill(outBuffer.begin(), outBuffer.begin() + 3000, 0);
-  outBuffer.resize(progress);
+  outBuffer.resize(progress * BYTES_PER_SAMPLE);
   return outBuffer;
 }
 
