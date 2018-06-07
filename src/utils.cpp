@@ -103,7 +103,7 @@ Buffer record(float length, float silenceLen) {
      
     //if sound hasn't been detected, then check for silence. If silent, wait for sound
     if (!soundDetected) {
-      if (isSilent(outBuffer, 0, progress + samplesRead)) {
+      if (isSilent(outBuffer, 0, ((progress + samplesRead)*BYTES_PER_SAMPLE))) {
 	continue;
       } else {
 	soundDetected = true;
@@ -111,7 +111,7 @@ Buffer record(float length, float silenceLen) {
     }
     
     if(soundDetected && silenceCutoffEnabled) {
-      if(isSilent(outBuffer, progress, progress+samplesRead)) {
+      if (isSilent(outBuffer, (progress*BYTES_PER_SAMPLE), ((progress+samplesRead)*BYTES_PER_SAMPLE))) {
 	silentPeriod+= samplesRead;
 	if(maxSilencePeriod < silentPeriod) {
 	  progress+=samplesRead;
