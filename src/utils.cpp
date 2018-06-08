@@ -10,6 +10,7 @@
 #include "aurora/errors/AuroraError.h"
 #include <cstring>
 
+
 namespace aurora {
 const int16_t SILENT_THRESH = 1 << 10;
 
@@ -54,92 +55,107 @@ bool isSilent(Buffer &b, size_t beginningIndex, size_t endingIndex) {
 }
 
 Buffer record(float length, float silenceLen) {
-  // TODO: check errors
-  bool silenceCutoffEnabled = true;
-  if(silenceLen == 0.0)
-    silenceCutoffEnabled = false;
-  int totalSamplesToRecord = length * (float)defaultSampleRate;
-  int maxSilencePeriod = silenceLen * (float)defaultSampleRate;
-  const int CHUNK_SIZE = 512; // max number of samples to read at once
-
-  // buffer for storing recorded audio, big enough to hold all samples
-  Buffer outBuffer(totalSamplesToRecord * BYTES_PER_SAMPLE);
-
-  // initialize portaudio
+  //init portudo
   PaError err = Pa_Initialize();
-
   
-  bool soundDetected = false;
-  
-  // create & configure portaudio audio stream
   PaStream *stream;
   err = Pa_OpenDefaultStream(&stream,
-                             1, // mono input channel
-                             0, // no output channels
+                             1, // mono input channel                                                
+                             0, // no output channels                                                
                              PORTAUDIO_SAMPLE_FORMAT,
                              defaultSampleRate,
                              paFramesPerBufferUnspecified,
-                             nullptr, // use blocking read instead of callback
-                             nullptr); // no userData for blocking read
+                             nullptr, // use blocking read instead of callback                       
+                             nullptr); // no userData for blocking read                              
   if (err != paNoError) {
-    // clean up portaudio resources before throwing
+    // clean up portaudio resources before throwing                                                  
     Pa_Terminate();
 
     throw AuroraError("PortAudioError", "An error occurred while using a PortAudio stream", Pa_GetErrorText(err));
   }
-
-  // commences audio processing of stream
+  // commences audio processing of stream                                                            
   err = Pa_StartStream(stream);
 
-  // record audio in chunks
-  int progress = 0; // samples recorded so far
-  int silentPeriod = 0; // number of continous silent samples
- 
-  while (progress < totalSamplesToRecord) {
-    AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
-    int samplesRead = std::min(CHUNK_SIZE, totalSamplesToRecord - progress);
-    err = Pa_ReadStream(stream, buffPtr, samplesRead);
-    
-     
-    //if sound hasn't been detected, then check for silence. If silent, wait for sound
-    if (!soundDetected) {
-      if (isSilent(outBuffer, 0, ((progress + samplesRead)*BYTES_PER_SAMPLE))) {
-	continue;
-      } else {
-	soundDetected = true;
-      }
-    }
-    
-    if(soundDetected && silenceCutoffEnabled) {
-      if (isSilent(outBuffer, (progress*BYTES_PER_SAMPLE), ((progress+samplesRead)*BYTES_PER_SAMPLE))) {
-	silentPeriod+= samplesRead;
-	if(maxSilencePeriod < silentPeriod) {
-	  progress+=samplesRead;
-	  break;
-	}
-      } else {
-	silentPeriod = 0;
-      }
-    }
-     progress += samplesRead;
+
+
+  bool lengthCutoffEnabled = true, silenceCutoffEnabled = true;
+  if(length == 0.0) {
+    lengthCutoffEnabled = false;
   }
+  if(silenceLen == 0.0) {
+    silenceCutoffEnabled = false;
+  }
+  int totalSamplesToRecord = length * (float)defaultSampleRate;
+  int maxSilentPeriod = silenceLen * (float)defaultSampleRate;
+  int silentBufferPeriod= 0.4 * (float)defaultSampleRate; //max of .4 seconds of silence before soun\
+d allowed                                                                                            
+  const int CHUNK_SIZE = 512; // max number of samples to read at once   
+ Buffer outBuffer(totalSamplesToRecord*BYTES_PER_SAMPLE);
+ int progress = 0, silentPeriod = 0;
 
-  // terminates audio processing, waiting for all pending audio buffers to complete
-  err = Pa_StopStream(stream);
+ if(!silenceCutoffEnabled && !lengthCutoffEnabled) { //if nothing cuts off audio length, return
+   return outBuffer;
+ }
+ //while sound hasn't been detected, wait (also record buffer up to silentBufferPeriod)
+ while(true) {
+   if((progress + CHUNK_SIZE)*BYTES_PER_SAMPLE >= outBuffer.size()) { //if we need more space, add it
+     outBuffer.resize(2*outBuffer.size() + (CHUNK_SIZE*BYTES_PER_SAMPLE)); //multiple space by two (and a little more)
+   }
+   AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
+   int samplesRead = std::min(CHUNK_SIZE, (int)outBuffer.size() - progress);
+   err = Pa_ReadStream(stream, buffPtr, samplesRead);
+   
+   if (isSilent(outBuffer, 0, ((progress + samplesRead)*BYTES_PER_SAMPLE))) {
+     if(progress + samplesRead < silentBufferPeriod) {
+       progress += samplesRead;
+     }
+   } else {
+     break;
+   }
+ }
+ 
+ //record up to length or silenceLen
+ while(true) {
+   if((progress + CHUNK_SIZE)*BYTES_PER_SAMPLE > outBuffer.size()) { //if we need more space, add it                                                      
+     outBuffer.resize(2*outBuffer.size() + (CHUNK_SIZE*BYTES_PER_SAMPLE)); //multiple space by two (and a little more)    
+   }
+   AudioSampleType *buffPtr = reinterpret_cast<AudioSampleType*>(outBuffer.data()) + progress;
+   int samplesRead = std::min(CHUNK_SIZE, (int)outBuffer.size() - progress);
+   err = Pa_ReadStream(stream, buffPtr, samplesRead);
 
-  // close audio stream, discarding any pending buffers!
-  err = Pa_CloseStream(stream);
+   //count continous silence
+   if(isSilent(outBuffer, (progress*BYTES_PER_SAMPLE), ((progress+samplesRead)*BYTES_PER_SAMPLE))) {
+     silentPeriod+= samplesRead;
+   } else {
+     silentPeriod = 0;
+   }
+   
+   //if silence is too long
+   if(maxSilentPeriod <= silentPeriod && silenceCutoffEnabled) {
+     break;
+   }
+   
+   //if recorded length is too long
+   if(totalSamplesToRecord <= progress && lengthCutoffEnabled) {
+     break;
+   }
+   
+   progress+=samplesRead;
+ }
+ // terminates audio processing, waiting for all pending audio buffers to complete                  
+ err = Pa_StopStream(stream);
 
-  // clean up portaudio resources
-  Pa_Terminate();
+ // close audio stream, discarding any pending buffers!                                             
+ err = Pa_CloseStream(stream);
 
-  // TODO: remove silence at beginning
+ // clean up portaudio resources                                                                    
+ Pa_Terminate();
 
-  // remove pop at beginning
-  // std::fill(outBuffer.begin(), outBuffer.begin() + 3000, 0);
-  outBuffer.resize(progress * BYTES_PER_SAMPLE);
-  return outBuffer;
+ //TODO remove pop at beginning                                                                         
+ outBuffer.resize(progress * BYTES_PER_SAMPLE);
+ return outBuffer;
 }
+
 
 // virtual sound file functions
 // implementations converted from libsndfile unit test:
